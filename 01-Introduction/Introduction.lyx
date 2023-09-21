@@ -2129,7 +2129,7 @@ into
 \begin_inset Formula 
 \begin{eqnarray*}
 \sum_{t=0}^{T-1}R^{-t}(\beta R)^{t/\sigma}c_{0} & = & s_{0}+h_{0}\Leftrightarrow\\
-c_{0}^{\ast} & = & \frac{1-\frac{(\beta R)^{1/\sigma}}{R}}{1-\left(\frac{(\beta R)^{1/\sigma}}{R}\right)^{T}}(s_{0}+h_{0})
+c_{0}^{\ast} & = & \frac{1-(\beta R)^{1/\sigma}R^{-1}}{1-\left((\beta R)^{1/\sigma}R^{-1}\right)^{T}}(s_{0}+h_{0})
 \end{eqnarray*}
 
 \end_inset
@@ -2165,7 +2165,7 @@ Infinite horizon
 Infinite horizon 
 \series default
 for 
-\begin_inset Formula $\beta R<1$
+\begin_inset Formula $(\beta R)^{1/\sigma}R^{-1}<1$
 \end_inset
 
 : Let 
@@ -2224,6 +2224,28 @@ MPC of windfall income:
 
 \end_layout
 
+\begin_deeper
+\begin_layout Standard
+Small when 
+\begin_inset Formula $\beta R\approx1$
+\end_inset
+
+ and 
+\begin_inset Formula $1-R^{-1}\approx r$
+\end_inset
+
+ 
+\begin_inset Formula $\Rightarrow$
+\end_inset
+
+ 
+\begin_inset Formula $\frac{\partial c_{0}}{\partial s_{0}}\approx r$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \end_deeper
 \begin_layout Itemize
 
@@ -2252,7 +2274,7 @@ Other simplifications:
 status open
 
 \begin_layout Plain Layout
-Liquidity/borrowing constraints
+Initial liquidity/borrowing constraint
 \end_layout
 
 \end_inset
@@ -2343,7 +2365,7 @@ Empirical realism.
 \series bold
 Technical issue: 
 \series default
-Borrowing constraints further in the future complicated the analytical solution
+Borrowing constraints further in the future complicates the analytical solution
  considerably.
 \end_layout
 
@@ -2360,7 +2382,7 @@ Borrowing constraints further in the future complicated the analytical solution
 status open
 
 \begin_layout Plain Layout
-Uncertainty
+Uncertainty and always borrowing constraint
 \end_layout
 
 \end_inset
@@ -2594,6 +2616,125 @@ For
 status open
 
 \begin_layout Plain Layout
+Natural borrowing limit
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<+->
+\end_layout
+
+\end_inset
+
+Denote 
+\series bold
+minimum possible income 
+\series default
+by
+\series bold
+ 
+\begin_inset Formula $\underline{z}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<+->
+\end_layout
+
+\end_inset
+
+
+\series bold
+Consumption must be non-negative
+\series default
+ 
+\begin_inset Formula $\Rightarrow$
+\end_inset
+
+ 
+\emph on
+interest payments must be less than minimum income
+\emph default
+
+\begin_inset Formula 
+\[
+c_{t}\geq0\Rightarrow r(-a_{t})\leq w\underline{z}\Leftrightarrow a_{t}\geq-\frac{w\underline{z}}{r}
+\]
+
+\end_inset
+
+If debt was larger it would in the worst case (
+\begin_inset Formula $\forall z_{t}=\underline{z}$
+\end_inset
+
+) grow without bound even with zero consumption (
+\begin_inset Formula $\forall c_{t}=0$
+\end_inset
+
+)
+\begin_inset Formula 
+\begin{align*}
+a_{0} & =-\frac{w\underline{z}}{r}-\Delta\\
+a_{1} & =(1+r)a_{0}+w\underline{z}=a_{0}-(1+r)\Delta\\
+a_{2} & =(1+r)a_{1}+w\underline{z}=a_{0}-(1+r)^{2}\Delta\\
+\vdots
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<+->
+\end_layout
+
+\end_inset
+
+
+\series bold
+Natural borrowing constraint: 
+\begin_inset Formula $a_{t}\geq\underline{a}=-w\min\left\{ b,\frac{\underline{z}}{r}\right\} $
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
 Euler-equation from variation argument
 \end_layout
 
@@ -2652,7 +2793,7 @@ Increase
 Feasible:
 \series default
  Yes, if 
-\begin_inset Formula $a_{t}>-wb$
+\begin_inset Formula $a_{t}>\underline{a}$
 \end_inset
 
 
@@ -2700,7 +2841,7 @@ status open
 Case II:
 \series default
  If 
-\begin_inset Formula $u^{\prime}(c_{t})<\beta(1+r)\mathbb{E}_{t}\left[u^{\prime}(c_{t+1})\right]$
+\begin_inset Formula $u^{\prime}(c_{t})<\beta R\mathbb{E}_{t}\left[u^{\prime}(c_{t+1})\right]$
 \end_inset
 
 : 
@@ -2786,7 +2927,7 @@ By contradiction
 Constrained:
 \series default
  
-\begin_inset Formula $a_{t}=-wb$
+\begin_inset Formula $a_{t}=\underline{a}$
 \end_inset
 
  and 
@@ -2802,7 +2943,7 @@ Constrained:
 Unconstrained:
 \series default
  
-\begin_inset Formula $a_{t}>-wb$
+\begin_inset Formula $a_{t}>\underline{a}$
 \end_inset
 
  and 
@@ -2848,7 +2989,19 @@ Quadratic utility:
 \begin_inset Formula $\beta R=1$
 \end_inset
 
+ and 
+\begin_inset Quotes ald
+\end_inset
 
+large
+\begin_inset Quotes ard
+\end_inset
+
+ 
+\begin_inset Formula $\overline{c}$
+\end_inset
+
+ 
 \end_layout
 
 \begin_layout Itemize
@@ -2857,7 +3010,7 @@ Quadratic utility:
 Euler-equation: 
 \series default
 \emph on
-Consumption = expected future consumption
+Consumption = expected future consumptio,n
 \emph default
 
 \begin_inset Formula 
@@ -2887,13 +3040,12 @@ consumption function:
 \begin_inset Formula 
 \begin{align*}
 \sum_{t=0}^{\text{\ensuremath{\infty}}}R^{-t}\mathbb{E}_{0}\left[c_{t}\right] & =Ra_{-1}+\sum_{t=0}^{\text{\ensuremath{\infty}}}R^{-t}w\mathbb{E}_{0}\left[z_{t}\right]\Rightarrow\\
-c_{0} & =ra_{-1}+\frac{r}{R}\sum_{t=0}^{T}R^{-t}w\mathbb{E}_{0}\left[z_{t}\right]\Rightarrow\\
-c^{\ast}(a_{t-1},z_{t}) & =ra_{t-1}+\frac{r}{R}\sum_{k=0}^{\infty}R^{-k}w\mathbb{E}_{t}\left[z_{t+k}\right]
+c^{\ast}(z_{t},a_{t-1})=c_{0} & =ra_{-1}+\frac{r}{R}\sum_{t=0}^{T}R^{-t}w\mathbb{E}_{0}\left[z_{t}\right]
 \end{align*}
 
 \end_inset
 
-
+where we formally disregard the borrowing constraint
 \end_layout
 
 \begin_layout Itemize
@@ -3009,7 +3161,7 @@ c^{*}(a_{t-1},z_{t})=ra_{t-1}+wz_{t}-\frac{\log\left(\beta R\right)^{\frac{1}{\a
 
 \end_inset
 
-
+where we formally disregard the borrowing constraint
 \end_layout
 
 \begin_layout Itemize
@@ -3026,11 +3178,11 @@ Precautionary saving:
 \end_inset
 
  for given 
-\begin_inset Formula $a_{t-1}$
+\begin_inset Formula $z_{t}$
 \end_inset
 
  and 
-\begin_inset Formula $z_{t}$
+\begin_inset Formula $a_{t-1}$
 \end_inset
 
 
@@ -3293,11 +3445,15 @@ Value function,
 
 :
 \series default
- Defined recursively from
+ Defined 
+\emph on
+recursively
+\emph default
+ from
 \begin_inset Formula 
 \begin{align*}
 v_{t}(z_{t},a_{t-1}) & =\max_{c_{t}}u(c_{t})+\beta\mathbb{E}_{t}[v_{t+1}(z_{t+1},a_{t})]\\
- & \text{s.t. }a_{t}=(1+r)a_{t-1}+wz_{t}-c_{t}\geq wb
+ & \text{s.t. }a_{t}=(1+r)a_{t-1}+wz_{t}-c_{t}\geq\underline{a}
 \end{align*}
 
 \end_inset
@@ -3358,7 +3514,7 @@ Is the same as
 \begin_inset Formula 
 \begin{align*}
 c_{t}^{*}(z_{t},a_{t-1}) & =\arg\max_{c_{t}}u(c_{t})+\beta\mathbb{E}_{t}[v_{t+1}(z_{t+1},a_{t})]\\
- & \text{s.t. }a_{t}=(1+r)a_{t-1}+wz_{t}-c_{t}\geq wb
+ & \text{s.t. }a_{t}=(1+r)a_{t-1}+wz_{t}-c_{t}\geq\underline{a}
 \end{align*}
 
 \end_inset
@@ -3406,7 +3562,7 @@ vspace{-7mm}
 \begin_inset Formula 
 \begin{align*}
 v_{t}(z_{t},a_{t-1}) & =\max_{c_{t}}u(c_{t})+\beta\mathbb{E}_{t}[v_{t+1}(z_{t+1},a_{t})]\\
- & \text{s.t. }a_{t}=(1+r)a_{t-1}+wz_{t}-c_{t}\geq wb
+ & \text{s.t. }a_{t}=(1+r)a_{t-1}+wz_{t}-c_{t}\geq\underline{a}
 \end{align*}
 
 \end_inset
@@ -3491,8 +3647,8 @@ Parameters:
 \series bold
 Note:
 \series default
- Conceptually straightforward to extend to more goods, more assets or other
- states, more complex uncentainty, bounded rationality etc.
+ Straightforward to extend to more goods, more assets or other states, more
+ complex uncertainty, bounded rationality etc.
  
 \end_layout
 
@@ -3539,7 +3695,7 @@ vspace{-7mm}
 \begin_inset Formula 
 \begin{align*}
 v_{t}(z_{t},a_{t-1}) & =\max_{c_{t}}u(c_{t})+\beta\mathbb{E}_{t}[v_{t+1}(z_{t+1},a_{t})]\\
- & \text{s.t. }a_{t}=(1+r)a_{t-1}+wz_{t}-c_{t}\geq wb
+ & \text{s.t. }a_{t}=(1+r)a_{t-1}+wz_{t}-c_{t}\geq\underline{a}
 \end{align*}
 
 \end_inset
@@ -3607,158 +3763,25 @@ Maximum upper limit for
 \series bold
 In practice:
 \series default
- Solve backwards until value and policy functions does not change anymore
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Make arbitrary initial guess (e.g.
+ 
+\begin_inset Formula $v_{t+1}=0$
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Enumerate
+Solve backwards until value and policy functions does not change anymore
  (given some tolerance)
 \end_layout
 
 \end_deeper
-\begin_layout Standard
-\begin_inset Separator plain
-\end_inset
-
-
-\end_layout
-
-\begin_layout Frame
-\begin_inset Argument 4
-status open
-
-\begin_layout Plain Layout
-One analytical result: Natural borrowing limit
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<+->
-\end_layout
-
-\end_inset
-
-
-\series bold
-Minimum income: 
-\begin_inset Formula $\underline{z}=\min_{z\in\mathcal{G}_{z}}z$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<+->
-\end_layout
-
-\end_inset
-
-
-\series bold
-Thought experiment: 
-\series default
-Assumptions
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-\begin_inset Formula $a_{t-1}=-\frac{w\underline{z}}{r}+\Delta$
-\end_inset
-
- 
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $z_{t}=\underline{z}$
-\end_inset
-
-, 
-\begin_inset Formula $\forall t$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $c_{t}=0$
-\end_inset
-
-, 
-\begin_inset Formula $\forall t$
-\end_inset
-
-
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<+->
-\end_layout
-
-\end_inset
-
-
-\series bold
-Implication:
-\series default
- For 
-\begin_inset Formula $\Delta<0$
-\end_inset
-
- assets will be 
-\emph on
-decreasing without bound!
-\emph default
-
-\begin_inset Formula 
-\begin{align*}
-a_{t} & =\left(1+r\right)\left(-\frac{w\underline{z}}{r}+\Delta\right)+w\underline{z}=-\frac{w\underline{z}}{r}+(1+r)\Delta\\
-a_{t+1} & =-\frac{w\underline{z}}{r}+(1+r)^{2}\Delta\\
- & \dots\\
-a_{t+k} & =-\frac{w\underline{z}}{r}+(1+r)^{k}\Delta\rightarrow-\infty
-\end{align*}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<+->
-\end_layout
-
-\end_inset
-
-
-\series bold
-Natural borrowing constraint: 
-\begin_inset Formula $a_{t}>w\max\left\{ -b,-\frac{\underline{z}}{r}\right\} $
-\end_inset
-
-
-\end_layout
-
 \end_deeper
 \begin_layout Standard
 \begin_inset Separator plain
@@ -3856,7 +3879,7 @@ End-of-period value function
 \begin_inset Formula 
 \begin{align*}
 v_{t}(z_{t},a_{t-1}) & =\max_{c_{t}}u(c_{t})+\beta\underline{v}_{t+1}(z_{t},a_{t})\\
- & \text{s.t. }a_{t}=(1+r)a_{t-1}+wz_{t}-c_{t}\geq wb
+ & \text{s.t. }a_{t}=(1+r)a_{t-1}+wz_{t}-c_{t}\geq\underline{a}
 \end{align*}
 
 \end_inset
@@ -3927,7 +3950,7 @@ vspace{-2mm}
 \begin{align*}
 z_{t} & \in\mathcal{G}_{z}=\{z^{0},z^{1},\dots,z^{\#z-1}\}\\
 a_{t} & \in\mathcal{G}_{a}=\{a^{0},a^{1},\dots,a^{\#_{a}-1}\}\\
- & a^{0}=w\max\left\{ -b,-\frac{\underline{z}}{r}\right\} 
+ & a^{0}=\underline{a}
 \end{align*}
 
 \end_inset
@@ -4309,7 +4332,7 @@ General problem:
 How can we calculate
 \begin_inset Formula 
 \[
-\mathbb{E}(f(x))=\int f(x)g(x)dx
+\mathbb{E}\left[f(x)\right]=\int f(x)g(x)dx
 \]
 
 \end_inset
@@ -4353,7 +4376,7 @@ General solution:
 Turn it into a discrete sum
 \begin_inset Formula 
 \[
-\mathbb{E}(f(x))\approx\sum_{i=1}^{S}\omega_{i}f(x_{i})
+\mathbb{E}\left[f(x)\right]\approx\sum_{i=1}^{S}\omega_{i}f(x_{i})
 \]
 
 \end_inset
@@ -4552,10 +4575,34 @@ status open
 
 \series bold
 End-of-period value-of-choice:
+\series default
+
 \begin_inset Formula 
 \begin{align*}
-v_{t}(z^{i_{z}},a^{i_{a-}}|c_{t}) & =u(c_{t})+\beta\sum_{i_{z+}=0}^{\#_{z}-1}\pi_{i_{z},i_{z+}}\breve{v}_{t+1}(z^{i_{z+1}},a_{t})\\
- & a_{t}=(1+r)a^{i_{a-}}+wz^{i_{z}}-c_{t}
+v_{t}(z^{i_{z}},a^{i_{a-}}) & =\max_{c_{t}}v_{t}(z^{i_{z}},a^{i_{a-}}|c_{t})\\
+ & \text{with }c_{t}\in[0,(1+r)a^{i_{a-}}+wz^{i_{z}}+\underline{a}]
+\end{align*}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+vspace{-7mm}
+\end_layout
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{align*}
+v_{t}(z^{i_{z}},a^{i_{a-}}|c_{t}) & =u(c_{t})+\underline{\breve{v}}_{t+1}(z^{i_{z}},a_{t})\\
+ & \text{with }a_{t}=(1+r)a^{i_{a-}}+wz^{i_{z}}-c_{t}
 \end{align*}
 
 \end_inset
@@ -4574,29 +4621,6 @@ status open
 
 \end_inset
 
-
-\series bold
-Nested loops:
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-
-\series bold
-Outer loop: 
-\series default
-Backwards from 
-\begin_inset Formula $t=T-1$
-\end_inset
-
- (note 
-\begin_inset Formula $\underline{v}_{T}=0$
-\end_inset
-
-, or known)
-\end_layout
-
-\begin_layout Enumerate
 
 \series bold
 Inner loop: 
@@ -4618,7 +4642,32 @@ For each grid point in
 numerical optimizer
 \end_layout
 
-\end_deeper
+\begin_layout Itemize
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<+->
+\end_layout
+
+\end_inset
+
+
+\series bold
+Outer loop: 
+\series default
+Backwards from 
+\begin_inset Formula $t=T-1$
+\end_inset
+
+ (note 
+\begin_inset Formula $\underline{v}_{T}=0$
+\end_inset
+
+, or known)
+\end_layout
+
 \end_deeper
 \begin_layout Standard
 \begin_inset Separator plain
@@ -4670,6 +4719,14 @@ centering
 	filename figs/c_func_convergence.pdf
 	width 50text%
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+with 
+\begin_inset Formula $z_{t}=0.87$
 \end_inset
 
 
@@ -5281,7 +5338,174 @@ Introduces a non-continuous distribution
 status open
 
 \begin_layout Plain Layout
-CDF of savings in final period
+Small example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series bold
+Grids:
+\series default
+ 
+\begin_inset Formula $\mathcal{G}_{z}=\{\underline{z},\overline{z}\}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathcal{G}_{a}=\{0,1\}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Transition matrix:
+\series default
+ 
+\begin_inset Formula $\pi_{0,0}=\pi_{1,1}=0.5$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Policy function: 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Low income: 
+\begin_inset Formula $a^{\ast}(\underline{z},0)=a^{\ast}(\underline{z},1)=0$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+High income: Let 
+\begin_inset Formula $a^{\ast}(\overline{z},0)=0.5$
+\end_inset
+
+ and 
+\begin_inset Formula $a^{\ast}(\overline{z},1)=1$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Initial distribution
+\series default
+: 
+\begin_inset Formula $\underline{\boldsymbol{D}}_{0}(z_{it},a_{it-1})=\begin{cases}
+1 & \text{if }z_{it}=\underline{z}\text{ and }a_{it}=0\\
+0 & \text{else}
+\end{cases}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Task: 
+\series default
+Calculate by hand the transitions to
+\begin_inset Formula 
+\[
+\boldsymbol{D}_{0},\,\underline{\boldsymbol{D}}_{1},\,\boldsymbol{D}_{1},\dots
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Infinite horizon: 
+\begin_inset Formula $T\rightarrow\infty?$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series bold
+Initial guess: 
+\series default
+Can be arbitrary.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Everyone in one grid point, or
+\end_layout
+
+\begin_layout Enumerate
+Ergodic distribution of 
+\begin_inset Formula $z_{it}$
+\end_inset
+
+ and everyone has zero savings,
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Convergence:
+\series default
+ Simulate forward until the distribution does not change anymore (given
+ some tolerance)
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Converged CDF of savings
 \end_layout
 
 \end_inset
@@ -5580,7 +5804,11 @@ Note:
 \series bold
 Further details: 
 \series default
-Young (2010), Tan (2020), Ocampo and Robinson (2022)
+Young (2010), Tan (2020),
+\begin_inset Newline newline
+\end_inset
+
+Ocampo and Robinson (2022)
 \end_layout
 
 \end_deeper
@@ -5612,7 +5840,7 @@ Endogenous grid-point method (EGM)
 \begin_layout Standard
 Alternative to VFI using Euler, i.e.
  
-\begin_inset Formula $c_{t}^{\sigma}=\beta(1+r)\mathbb{E}_{t}[c_{t+1}^{-\sigma}]$
+\begin_inset Formula $c_{t}^{-\sigma}=\beta(1+r)\mathbb{E}_{t}[c_{t+1}^{-\sigma}]$
 \end_inset
 
 :
@@ -5802,9 +6030,8 @@ If
 \begin_inset Formula $m\leq m(z^{i_{z}},a^{0})$
 \end_inset
 
- con.
- binds: 
-\begin_inset Formula $c^{\ast}(z^{i_{z}},a^{i_{a-}})=m+w\max\left\{ -b,-\frac{\underline{z}}{r}\right\} $
+ constraint binds: 
+\begin_inset Formula $c^{\ast}(z^{i_{z}},a^{i_{a-}})=m+\underline{a}$
 \end_inset
 
 
