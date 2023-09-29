@@ -13,10 +13,16 @@ def solve_hh_backwards(par,z_trans,r,w,phi_0,phi_1,vbeg_a_plus,vbeg_a,a,c,l):
         for i_z in nb.prange(par.Nz):
         
             ## i. labor supply
-            l[i_fix,i_z,:] = par.z_grid[i_z]*par.eta_grid[i_fix]
+            # Adjusted labor supply according to ability and labor type
+            if par.eta_grid[i_fix] == 0:  # low ability
+                l[i_fix,i_z,:] = par.z_grid[i_z] * (2/3 * phi_0 + 1/3 * phi_1)
+            else:  # high ability
+                l[i_fix,i_z,:] = par.z_grid[i_z] * (1/3 * phi_0 + 2/3 * phi_1)
+
+            # l[i_fix,i_z,:] = par.z_grid[i_z]*par.eta_grid[i_fix]
 
             ## ii. cash-on-hand
-            m = (1+r-par.delta)*par.a_grid + w*l[i_fix,i_z,:]*(1/3*phi_0+2/3*phi_1)
+            m = (1+r-par.delta)*par.a_grid + w*l[i_fix,i_z,:]
 
             # iii. EGM
             c_endo = (par.beta_grid[i_fix]*vbeg_a_plus[i_fix,i_z])**(-1/par.sigma)

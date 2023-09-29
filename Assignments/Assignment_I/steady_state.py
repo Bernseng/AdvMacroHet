@@ -45,8 +45,8 @@ def prepare_hh_ss(model):
 
     # a. raw value
     y = ss.w*par.z_grid
-    c = m = (1+ss.r)*par.a_grid[np.newaxis,:] + y[:,np.newaxis]
-    v_a = (1+ss.r)*c**(-par.sigma)
+    c = m = (1+ss.r-par.delta)*par.a_grid[np.newaxis,:] + y[:,np.newaxis]
+    v_a = (1+ss.r-par.delta)*c**(-par.sigma)
 
     # b. expectation
     ss.vbeg_a[:] = ss.z_trans@v_a
@@ -58,17 +58,17 @@ def obj_ss(K_ss,model,do_print=False):
     ss = model.ss
 
     # a. production
+    ss.phi_0 = 1.0
+    ss.phi_1 = 2.0
     ss.Gamma = par.Gamma_ss # model user choice
     ss.A = ss.K = K_ss
     ss.L = 1.0 # by assumption
-    ss.Y = ss.Gamma*ss.K**par.alpha*ss.L**(1-par.alpha)    
+    ss.Y = ss.Gamma*ss.K**par.alpha*ss.L**((1-par.alpha)/2.0)    
 
     # b. implied prices
     ss.rK = par.alpha*ss.Gamma*(ss.K/ss.L)**(par.alpha-1.0)
     ss.r = ss.rK - par.delta
     ss.w = (1.0-par.alpha)*ss.Gamma*(ss.K/ss.L)**par.alpha
-    ss.phi_0 = 1.0
-    ss.phi_1 = 2.0
 
     # c. household behavior
     if do_print:

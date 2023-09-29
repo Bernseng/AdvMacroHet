@@ -86,9 +86,6 @@ class HANCModelClass(EconModelClass,GEModelClass):
         par.beta_grid = np.zeros(par.Nbeta)
         par.eta_grid = np.zeros(par.Neta)
 
-        # par.state_grid = np.array(np.meshgrid(par.beta_grid, par.chi)).T.reshape(-1, 2)
-        # par.Nstates = par.state_grid.shape[0]
-
         # b. solution
         self.allocate_GE() # should always be called here
 

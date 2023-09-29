@@ -48,7 +48,7 @@ class HANCModelClass(EconModelClass,GEModelClass):
 
         par = self.par
 
-        par.Nfix = 6 # number of fixed discrete states (none here)
+        par.Nfix = 3 # number of fixed discrete states (none here)
         par.Nz = 7 # number of stochastic discrete states (here productivity)
 
         # a. preferences
