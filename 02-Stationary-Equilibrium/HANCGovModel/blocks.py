@@ -4,6 +4,7 @@ import numba as nb
 from GEModelTools import prev,next
 
 @nb.njit
+# We do this because of the equation system
 def government(par,ini,ss,tau,G,pB,B):
 
     for t in range(par.T):

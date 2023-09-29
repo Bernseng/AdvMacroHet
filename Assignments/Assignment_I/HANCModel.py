@@ -19,7 +19,7 @@ class HANCModelClass(EconModelClass,GEModelClass):
         # b. household
         self.grids_hh = ['a'] # grids
         self.pols_hh = ['a'] # policy functions
-        self.inputs_hh = ['r','w'] # direct inputs
+        self.inputs_hh = ['r','w','phi_0','phi_1'] # direct inputs
         self.inputs_hh_z = [] # transition matrix inputs (not used today)
         self.outputs_hh = ['a','c','l'] # outputs
         self.intertemps_hh = ['vbeg_a'] # intertemporal variables
@@ -42,7 +42,7 @@ class HANCModelClass(EconModelClass,GEModelClass):
 
         par = self.par
 
-        par.Nfix = 3 # number of fixed discrete states (none here)
+        par.Nfix = 6 # number of fixed discrete states (none here)
         par.Nz = 7 # number of stochastic discrete states (here productivity)
 
         # a. preferences
@@ -52,7 +52,7 @@ class HANCModelClass(EconModelClass,GEModelClass):
 
         # b. income parameters
         par.rho_z = 0.95 # AR(1) parameter
-        par.sigma_psi = 0.30*(1.0-par.rho_z**2.0)**0.5 # std. of persistent shock
+        par.sigma_psi = 0.30*(1.0-par.rho_z**2.0) # std. of persistent shock
 
         # c. production and investment
         par.alpha = 0.36 # cobb-douglas
@@ -81,7 +81,13 @@ class HANCModelClass(EconModelClass,GEModelClass):
 
         # a. grids
         par.Nbeta = par.Nfix
+        par.Neta = par.Nfix
+
         par.beta_grid = np.zeros(par.Nbeta)
+        par.eta_grid = np.zeros(par.Neta)
+
+        # par.state_grid = np.array(np.meshgrid(par.beta_grid, par.chi)).T.reshape(-1, 2)
+        # par.Nstates = par.state_grid.shape[0]
 
         # b. solution
         self.allocate_GE() # should always be called here

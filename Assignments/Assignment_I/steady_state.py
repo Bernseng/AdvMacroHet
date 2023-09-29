@@ -18,7 +18,11 @@ def prepare_hh_ss(model):
     ############
     
     # a. beta
-    par.beta_grid[:] = np.linspace(par.beta_mean-par.beta_delta,par.beta_mean+par.beta_delta,par.Nbeta)
+    par.beta_grid[:] = np.array([par.beta_mean-par.beta_delta,par.beta_mean,par.beta_mean+par.beta_delta,
+        par.beta_mean-par.beta_delta,par.beta_mean,par.beta_mean+par.beta_delta])
+
+    par.eta_grid[:] = np.array([0,0,0,1.0,1.0,1.0])
+    # par.beta_grid[:] = np.linspace(par.beta_mean-par.beta_delta,par.beta_mean+par.beta_delta,par.Nbeta)
 
     # b. a
     par.a_grid[:] = equilogspace(0.0,ss.w*par.a_max,par.Na)
@@ -63,6 +67,8 @@ def obj_ss(K_ss,model,do_print=False):
     ss.rK = par.alpha*ss.Gamma*(ss.K/ss.L)**(par.alpha-1.0)
     ss.r = ss.rK - par.delta
     ss.w = (1.0-par.alpha)*ss.Gamma*(ss.K/ss.L)**par.alpha
+    ss.phi_0 = 1.0
+    ss.phi_1 = 2.0
 
     # c. household behavior
     if do_print:
