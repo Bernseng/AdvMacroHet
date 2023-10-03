@@ -52,12 +52,14 @@ class HANCModelClass(EconModelClass,GEModelClass):
 
         # b. income parameters
         par.rho_z = 0.95 # AR(1) parameter
-        par.sigma_psi = 0.30*(1.0-par.rho_z**2.0) # std. of persistent shock
+        par.sigma_psi = 0.30*(1.0-par.rho_z**2.0)**0.5 # std. of persistent shock
 
         # c. production and investment
         par.alpha = 0.36 # cobb-douglas
         par.delta = 0.10 # depreciation rate
         par.Gamma_ss = 1.0 # direct approach: technology level in steady state
+        par.epsilon = 1.0
+        par.nu = 0.5
 
         # f. grids         
         par.a_max = 500.0 # maximum point in grid for a

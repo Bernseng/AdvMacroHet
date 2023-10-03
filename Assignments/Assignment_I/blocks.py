@@ -18,7 +18,7 @@ def production_firm(par,ini,ss,Gamma,K,L,rK,w,Y):
     w[:] = (1.0-par.alpha)*Gamma*(K_lag/L)**par.alpha
     
     # b. production and investment
-    Y[:] = Gamma*K_lag**(par.alpha)*L**(1-par.alpha)
+    Y[:] = Gamma*K_lag**(par.alpha)*L**((1.0-par.alpha)/2.0)
 
 @nb.njit
 def mutual_fund(par,ini,ss,K,rK,A,r):

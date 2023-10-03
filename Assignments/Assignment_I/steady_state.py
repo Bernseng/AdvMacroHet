@@ -62,13 +62,20 @@ def obj_ss(K_ss,model,do_print=False):
     ss.phi_1 = 2.0
     ss.Gamma = par.Gamma_ss # model user choice
     ss.A = ss.K = K_ss
-    ss.L = 1.0 # by assumption
-    ss.Y = ss.Gamma*ss.K**par.alpha*ss.L**((1-par.alpha)/2.0)    
+    # L_0 = 2/3*ss.phi_0
+    # L_1 = 1/3*ss.phi_1
+    ss.L = 1.5
+    
+    ss.Y = ss.Gamma*ss.K**par.alpha*ss.L**(1.0-par.alpha)    
+
+    # ss.Y = ss.Gamma*ss.K**par.alpha*ss.L**((1.0-par.alpha)/2.0)    
 
     # b. implied prices
     ss.rK = par.alpha*ss.Gamma*(ss.K/ss.L)**(par.alpha-1.0)
     ss.r = ss.rK - par.delta
+    # ss.w = (1.0-par.alpha)/2.0*ss.Gamma*(ss.K/ss.L)**par.alpha*ss.L**(-1/2)
     ss.w = (1.0-par.alpha)*ss.Gamma*(ss.K/ss.L)**par.alpha
+
 
     # c. household behavior
     if do_print:
