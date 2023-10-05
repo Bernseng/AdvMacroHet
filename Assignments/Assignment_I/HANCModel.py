@@ -19,7 +19,7 @@ class HANCModelClass(EconModelClass,GEModelClass):
         # b. household
         self.grids_hh = ['a'] # grids
         self.pols_hh = ['a'] # policy functions
-        self.inputs_hh = ['r','w','phi_0','phi_1'] # direct inputs
+        self.inputs_hh = ['r','w'] # direct inputs
         self.inputs_hh_z = [] # transition matrix inputs (not used today)
         self.outputs_hh = ['a','c','l'] # outputs
         self.intertemps_hh = ['vbeg_a'] # intertemporal variables
@@ -60,6 +60,8 @@ class HANCModelClass(EconModelClass,GEModelClass):
         par.Gamma_ss = 1.0 # direct approach: technology level in steady state
         par.epsilon = 1.0
         par.nu = 0.5
+        par.chi = np.array([0,1])
+        par.phi = np.array([1,2])
 
         # f. grids         
         par.a_max = 500.0 # maximum point in grid for a

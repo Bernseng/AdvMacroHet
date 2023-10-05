@@ -58,13 +58,11 @@ def obj_ss(K_ss,model,do_print=False):
     ss = model.ss
 
     # a. production
-    ss.phi_0 = 1.0
-    ss.phi_1 = 2.0
     ss.Gamma = par.Gamma_ss # model user choice
     ss.A = ss.K = K_ss
     # L_0 = 2/3*ss.phi_0
     # L_1 = 1/3*ss.phi_1
-    ss.L = 1.5
+    ss.L = 1.0
     
     ss.Y = ss.Gamma*ss.K**par.alpha*ss.L**(1.0-par.alpha)    
 
