@@ -19,15 +19,15 @@ class HANCModelClass(EconModelClass,GEModelClass):
         # b. household
         self.grids_hh = ['a'] # grids
         self.pols_hh = ['a'] # policy functions
-        self.inputs_hh = ['r','w'] # direct inputs
+        self.inputs_hh = ['r','w','phi0','phi1'] # direct inputs
         self.inputs_hh_z = [] # transition matrix inputs (not used today)
-        self.outputs_hh = ['a','c','l'] # outputs
+        self.outputs_hh = ['a','c','l0','l1'] # outputs
         self.intertemps_hh = ['vbeg_a'] # intertemporal variables
 
         # c. GE
-        self.shocks = [] # exogenous shocks (not used today)
-        self.unknowns = [] # endogenous unknowns (not used today)
-        self.targets = [] # targets = 0 (not used today)
+        self.shocks = ['phi1'] # exogenous shocks (not used today)
+        self.unknowns = ['K','L0','L1'] # endogenous unknowns (not used today)
+        self.targets = ['clearing_A','clearing_L0','clearing_L1'] # targets = 0 (not used today)
         self.blocks = [ # list of strings to block-functions
             'blocks.production_firm',
             'blocks.mutual_fund',
@@ -42,7 +42,7 @@ class HANCModelClass(EconModelClass,GEModelClass):
 
         par = self.par
 
-        par.Nfix = 6 # number of fixed discrete states (none here)
+        par.Nfix = 3 # number of fixed discrete states (none here)
         par.Nz = 7 # number of stochastic discrete states (here productivity)
 
         # a. preferences
@@ -60,8 +60,6 @@ class HANCModelClass(EconModelClass,GEModelClass):
         par.Gamma_ss = 1.0 # direct approach: technology level in steady state
         par.epsilon = 1.0
         par.nu = 0.5
-        par.chi = np.array([0,1])
-        par.phi = np.array([1,2])
 
         # f. grids         
         par.a_max = 500.0 # maximum point in grid for a
@@ -83,12 +81,11 @@ class HANCModelClass(EconModelClass,GEModelClass):
 
         par = self.par
 
-        # a. grids
-        par.Nbeta = par.Nfix
-        par.Neta = par.Nfix
-
-        par.beta_grid = np.zeros(par.Nbeta)
-        par.eta_grid = np.zeros(par.Neta)
+        # a. grids   
+        par.beta_grid = np.zeros(par.Nfix)
+        par.chi_grid = np.zeros(par.Nfix)
+        par.eta0_grid = np.zeros(par.Nfix)
+        par.eta1_grid = np.zeros(par.Nfix)
 
         # b. solution
         self.allocate_GE() # should always be called here

@@ -4,41 +4,28 @@ import numba as nb
 from consav.linear_interp import interp_1d_vec
 
 @nb.njit(parallel=True)        
-def solve_hh_backwards(par,z_trans,r,w,vbeg_a_plus,vbeg_a,a,c,l):
+def solve_hh_backwards(par,z_trans,r,w,phi1,phi0,vbeg_a_plus,vbeg_a,a,c,l0,l1):
     """ solve backwards with vbeg_a from previous iteration (here vbeg_a_plus) """
 
     for i_fix in nb.prange(par.Nfix):
+        # chi = par.chi_grid[i_fix]
 
-        chi = par.chi[i_fix % 2] / par.eta_grid[i_fix]
-        phi = par.phi[i_fix % 2] / par.eta_grid[i_fix]
+        # for i_chi in nb.prange(par.Nchi):
+        eta0 = par.eta0_grid[i_fix]
+        eta1 = par.eta1_grid[i_fix]
 
         # a. solve step
         for i_z in nb.prange(par.Nz):
-        
-            ## i. labor supply
-            # Adjusted labor supply according to ability and labor type
-
-            # l[i_fix,i_z,:] = par.eta_grid[i_fix] * par.z_grid[i_z]
-            # if par.eta_grid[i_fix] == 0:  # low ability
-            #     l[i_fix,i_z,:] = par.z_grid[i_z] * (2/3 * phi_0 + 1/3 * phi_1)
-            # else:  # high ability
-            #     l[i_fix,i_z,:] = par.z_grid[i_z] * (1/3 * phi_0 + 2/3 * phi_1)
- 
-
-            l[i_fix,i_z,:] = par.z_grid[i_z] * par.eta_grid[i_fix] * chi * phi
             
-            # l[i_fix,i_z,:] = par.z_grid[i_z]*par.eta_grid[i_fix]
-            # if par.eta_grid[i_fix] == 0:
-            # ## ii. cash-on-hand
-            #     m = (1+r-par.delta)*par.a_grid + w*l[i_fix,i_z,:]*phi_0
-            # else:
-            #     m = (1+r-par.delta)*par.a_grid + w*l[i_fix,i_z,:]*phi_1
-
-            m = (1+r-par.delta)*par.a_grid + w*l[i_fix,i_z,:]
-
+            ## i. labor supply
+            l0[i_fix,i_z,:] = par.z_grid[i_z] * eta0 * phi0
+            l1[i_fix,i_z,:] = par.z_grid[i_z] * eta1 * phi1
+            
+            ## ii. total income (from labor supply of both types and capital)
+            m = (1+r-par.delta)*par.a_grid + w*(l0[i_fix,i_z,:]+l1[i_fix,i_z,:])
 
             # iii. EGM
-            c_endo = (par.beta_grid[i_fix]*vbeg_a_plus[i_fix,i_z])**(-1/par.sigma)
+            c_endo = (par.beta_grid[i_fix]*vbeg_a_plus[i_fix,i_z])**(-1.0/par.sigma)
             m_endo = c_endo + par.a_grid # current consumption + end-of-period assets
             
             # iv. interpolation to fixed grid
