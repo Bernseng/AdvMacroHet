@@ -47,14 +47,16 @@ def prepare_hh_ss(model):
         # b. expectation
         ss.vbeg_a[i_fix] = ss.z_trans[i_fix]@v_a
 
-def obj_ss(KL,model,do_print=False):
+def obj_ss(x,model,do_print=False):
+
+    KL = x[0]
 
     par = model.par
     ss = model.ss
 
     # a. firms
-    ss.rK = par.alpha*par.Gamma*(KL)**(par.alpha-1)
-    ss.w = (1.0-par.alpha)*par.Gamma*(KL)**par.alpha
+    ss.rK = par.alpha*par.Gamma_Y*(KL)**(par.alpha-1)
+    ss.w = (1.0-par.alpha)*par.Gamma_Y*(KL)**par.alpha
 
     # b. arbitrage
     ss.r = ss.rK - par.delta
@@ -72,15 +74,17 @@ def obj_ss(KL,model,do_print=False):
     ss.B = 0.0
     ss.L = ss.L_hh
     ss.K = KL*ss.L
-    ss.Y = par.Gamma*ss.K**(par.alpha)*ss.L**(1-par.alpha)
-
-    ss.clearing_A = ss.B + ss.K - ss.A_hh
+    ss.Y = par.Gamma_Y*ss.K**(par.alpha)*ss.L**(1-par.alpha)
+    ss.I = par.delta*ss.K
+    ss.A = ss.K + ss.B
+    ss.clearing_A = ss.A - ss.A_hh
     ss.clearing_L = ss.L - ss.L_hh
-    ss.clearing_Y = ss.Y - (ss.C_hh+par.delta*ss.K)
+    ss.clearing_Y = ss.Y - (ss.C_hh+ss.I)
 
     return ss.clearing_A
 
-def find_ss(model,KL_min=None,KL_max=None,do_print=False):
+
+def find_ss(model,do_print=False):
     """ find the steady state """
 
     t0 = time.time()
@@ -88,17 +92,22 @@ def find_ss(model,KL_min=None,KL_max=None,do_print=False):
     par = model.par
     ss = model.ss
 
-    if KL_min is None: KL_min = ((1/par.beta+par.delta-1)/(par.alpha*par.Gamma))**(1/(par.alpha-1)) + 1e-2
-    if KL_max is None: KL_max = (par.delta/(par.alpha*par.Gamma))**(1/(par.alpha-1))-1e-2
+    KL_min = ((1/par.beta+par.delta-1)/(par.alpha*par.Gamma_Y))**(1/(par.alpha-1)) + 1e-2
+    KL_max = (par.delta/(par.alpha*par.Gamma_Y))**(1/(par.alpha-1))-1e-2
+    KL_mid = (KL_min+KL_max)/2 # middle point between max values as initial capital labor ratio
 
     # a. solve for K and L
-    if do_print:
-        print(f'seaching in [{KL_min:.4f},{KL_max:.4f}]')
+    initial_guess =  np.array([KL_mid])
+    if do_print: print(f'starting at [{initial_guess[0]:.4f}]')
 
-    res = optimize.root_scalar(obj_ss,bracket=(KL_min,KL_max),method='brentq',args=(model,))
+    res = optimize.root(obj_ss, initial_guess, args=(model,))
+    if do_print: 
+        print('')
+        print(res)
+        print('')
     
     # b. final evaluations
-    obj_ss(res.root,model)
+    obj_ss(res.x,model)
 
     # c. show
     if do_print:

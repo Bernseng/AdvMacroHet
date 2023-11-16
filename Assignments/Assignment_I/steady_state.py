@@ -17,12 +17,21 @@ def prepare_hh_ss(model):
     # 1. grids #
     ############
     
-    # a. beta
-    par.beta_grid[:] = np.array([par.beta_mean-par.beta_delta,par.beta_mean,par.beta_mean+par.beta_delta,
-        par.beta_mean-par.beta_delta,par.beta_mean,par.beta_mean+par.beta_delta])
+    # a. beta, eta and chi
+    par.beta_grid[:] = np.array([par.beta_mean-par.beta_delta,par.beta_mean,par.beta_mean+par.beta_delta])
 
-    par.eta_grid[:] = np.array([0,0,0,1.0,1.0,1.0])
-    # par.beta_grid[:] = np.linspace(par.beta_mean-par.beta_delta,par.beta_mean+par.beta_delta,par.Nbeta)
+    par.chi_grid[:] = np.array([0,0,1.0])
+    par.eta0_grid[:] = np.zeros_like(par.chi_grid)
+    par.eta1_grid[:] = np.zeros_like(par.chi_grid)
+
+    # assign values to eta0 and eta1 for values in chi
+    for i, chi in enumerate(par.chi_grid):
+        if chi == 0:
+            par.eta0_grid[i] = 1.0
+            par.eta1_grid[i] = 0
+        else:
+            par.eta1_grid[i] = 1.0
+            par.eta0_grid[i] = 0    
 
     # b. a
     par.a_grid[:] = equilogspace(0.0,ss.w*par.a_max,par.Na)
@@ -45,6 +54,7 @@ def prepare_hh_ss(model):
 
     # a. raw value
     y = ss.w*par.z_grid
+
     c = m = (1+ss.r-par.delta)*par.a_grid[np.newaxis,:] + y[:,np.newaxis]
     v_a = (1+ss.r-par.delta)*c**(-par.sigma)
 
@@ -60,20 +70,20 @@ def obj_ss(K_ss,model,do_print=False):
     # a. production
     ss.Gamma = par.Gamma_ss # model user choice
     ss.A = ss.K = K_ss
-    # L_0 = 2/3*ss.phi_0
-    # L_1 = 1/3*ss.phi_1
-    ss.L = 1.0
-    
-    ss.Y = ss.Gamma*ss.K**par.alpha*ss.L**(1.0-par.alpha)    
+    ss.L0 = 2/3
+    ss.L1 = 1/3
+    ss.phi1 = 2.0
+    ss.phi0 = 1.0
 
-    # ss.Y = ss.Gamma*ss.K**par.alpha*ss.L**((1.0-par.alpha)/2.0)    
+    # b. steady-state output
+    ss.Y = ss.Gamma*ss.K**par.alpha*ss.L0**((1.0-par.alpha)/2)*ss.L1**((1.0-par.alpha)/2)
+
+    # c. implied prices
+    ss.rK = par.alpha*ss.Gamma*(ss.K/(ss.L0+ss.L1))**(par.alpha-1.0)
+    ss.w = (1.0-par.alpha)*ss.Gamma*(ss.K/(ss.L0+ss.L1))**par.alpha
 
     # b. implied prices
-    ss.rK = par.alpha*ss.Gamma*(ss.K/ss.L)**(par.alpha-1.0)
     ss.r = ss.rK - par.delta
-    # ss.w = (1.0-par.alpha)/2.0*ss.Gamma*(ss.K/ss.L)**par.alpha*ss.L**(-1/2)
-    ss.w = (1.0-par.alpha)*ss.Gamma*(ss.K/ss.L)**par.alpha
-
 
     # c. household behavior
     if do_print:
@@ -81,6 +91,8 @@ def obj_ss(K_ss,model,do_print=False):
         print(f'guess {ss.K = :.4f}')    
         print(f'implied {ss.r = :.4f}')
         print(f'implied {ss.w = :.4f}')
+        # print(f'implied {ss.w1 = :.4f}')
+
 
     model.solve_hh_ss(do_print=do_print)
     model.simulate_hh_ss(do_print=do_print)
@@ -92,8 +104,10 @@ def obj_ss(K_ss,model,do_print=False):
 
     # d. market clearing
     ss.clearing_A = ss.A - ss.A_hh
-    ss.clearing_L = ss.L-ss.L_hh
-    ss.I = ss.K - (1-par.delta)*ss.K
+    ss.clearing_L0 = ss.L0-ss.L0_hh
+    ss.clearing_L1 = ss.L1-ss.L1_hh
+
+    ss.I = ss.K - (1.0-par.delta)*ss.K
     ss.clearing_Y = ss.Y - ss.C_hh - ss.I
 
     return ss.clearing_A # target to hit
@@ -154,7 +168,8 @@ def find_ss_indirect(model,do_print=False):
     ss = model.ss
 
     # a. exogenous and targets
-    ss.L = 1.0
+    ss.L0 = 2/3
+    ss.L1 = 2/3
     ss.r = par.r_ss_target
     ss.w = par.w_ss_target
 
@@ -166,13 +181,13 @@ def find_ss_indirect(model,do_print=False):
     ss.K = ss.A = ss.A_hh # = np.sum(ss.a*ss.D) # calculated in model.simulate_hh_ss
     
     # c. back technology and depreciation rate
-    ss.Gamma = ss.w / ((1-par.alpha)*(ss.K/ss.L)**par.alpha)
+    ss.Gamma = ss.w / ((1.0-par.alpha)*(ss.K/ss.L)**par.alpha)
     ss.rK = par.alpha*ss.Gamma*(ss.K/ss.L)**(par.alpha-1)
     par.delta = ss.rK - ss.r
     ss.I = par.delta*ss.K
 
     # d. remaining
-    ss.Y = ss.Gamma*ss.K**par.alpha*ss.L**(1-par.alpha)
+    ss.Y = ss.Gamma*ss.K**par.alpha*ss.L**(1.0-par.alpha)
     # ss.C_hh = np.sum(ss.D*ss.c)  # calculated in model.simulate_hh_ss
     # ss.L_hh = np.sum(ss.D*ss.l)  # calculated in model.simulate_hh_ss
 

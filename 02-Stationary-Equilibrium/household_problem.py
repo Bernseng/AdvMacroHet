@@ -14,6 +14,7 @@ def solve_hh_backwards(par,z_trans,r,w,vbeg_a_plus,vbeg_a,a,c,l):
         
             ## i. labor supply
             l[i_fix,i_z,:] = par.z_grid[i_z]
+            print(l[i_fix,i_z,0:2])
 
             ## ii. cash-on-hand
             m = (1+r)*par.a_grid + w*l[i_fix,i_z,:]
