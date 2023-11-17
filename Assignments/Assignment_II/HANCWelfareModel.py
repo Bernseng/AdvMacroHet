@@ -49,6 +49,8 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         par.sigma = 2.0 # CRRA coefficient
         par.varphi = 1.0 # dis-utility of labor
         par.nu = 1.0 # inverse Frisch elasticity of labor supply
+        par.omega = 2.0
+        par.S_ = 10**(-8)
 
         # b. income parameters
         par.rho_z = 0.96 # AR(1) parameter
@@ -56,6 +58,7 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
 
         # c. production and investment
         par.Gamma_Y = 1.0 # technology level
+        par.Gamma_G = 1.0 
         par.alpha = 0.30 # cobb-douglas coefficient
         par.delta = 0.10 # depreciation rate
 
