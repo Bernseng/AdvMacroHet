@@ -17,14 +17,14 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         # b. household
         self.grids_hh = ['a'] # grids
         self.pols_hh = ['a'] # policy functions
-        self.inputs_hh = ['r','wt'] # direct inputs
+        self.inputs_hh = ['r','wt','tau','chi','S'] # direct inputs
         self.inputs_hh_z = [] # transition matrix inputs (not used today)
-        self.outputs_hh = ['a','c','ell','l','inc','u'] # outputs
+        self.outputs_hh = ['a','c','ell','l','inc','u','du'] # outputs
         self.intertemps_hh = ['vbeg_a'] # intertemporal variables
 
         # c. GE
         self.shocks = [] # exogenous shocks
-        self.unknowns = ['K','L'] # endogenous unknowns
+        self.unknowns = ['K','L','tau'] # endogenous unknowns
         self.targets = ['clearing_A','clearing_L'] # targets = 0
         self.blocks = [ # list of strings to block-functions
             'blocks.production_firm',

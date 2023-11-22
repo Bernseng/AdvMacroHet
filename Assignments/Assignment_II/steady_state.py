@@ -19,6 +19,7 @@ def prepare_hh_ss(model):
     # a. a
     par.a_grid[:] = equilogspace(0.0,par.a_max,par.Na)
     
+
     # b. z
     par.z_grid[:],z_trans,z_ergodic,_,_ = log_rouwenhorst(par.rho_z,par.sigma_psi,par.Nz)
 
@@ -47,9 +48,10 @@ def prepare_hh_ss(model):
         # b. expectation
         ss.vbeg_a[i_fix] = ss.z_trans[i_fix]@v_a
 
-def obj_ss(x,model,do_print=False):
+def obj_ss(x,y,model,do_print=False,gov=False):
 
-    KL, tau = x[0], x[1]
+    KL = x[0]
+    tau = x[1] if gov else 0.0
 
     par = model.par
     ss = model.ss
@@ -60,12 +62,18 @@ def obj_ss(x,model,do_print=False):
 
     # b. arbitrage
     ss.r = ss.rK - par.delta
-    ss.tau = tau
     
     # c. government
-    ss.G = par.Gamma_G*ss.LG
-    # ss.S = ss.G + par.Gamma_G * ss.LG
-    tau = (ss.G + ss.w * ss.LG) / (ss.w * ss.L_hh)  # Tax rate
+    if gov:
+        ss.tau = tau
+        ss.G = par.Gamma_G*ss.LG
+        ss.LG = (ss.tau * ss.w * ss.L_hh - ss.G - ss.chi) / ss.w
+    else:
+        ss.G = 0
+        ss.LG = 0
+        ss.chi = 0
+        
+    ss.S = min(ss.G, par.Gamma_G * ss.LG)  # Calculate government services
 
     # d. households
     ss.wt = (1-ss.tau)*ss.w
@@ -76,7 +84,7 @@ def obj_ss(x,model,do_print=False):
     # e. market clearing
     ss.B = 0.0
     ss.L = ss.L_hh
-    ss.L = ss.LY + ss.LG
+    ss.LY = ss.L - ss.LG
     ss.K = KL*ss.LY
     ss.Y = par.Gamma_Y*ss.K**(par.alpha)*ss.LY**(1-par.alpha)
     ss.I = par.delta*ss.K
@@ -86,7 +94,8 @@ def obj_ss(x,model,do_print=False):
     ss.clearing_L = ss.LY + ss.LG - ss.L
     ss.clearing_Y = ss.Y - (ss.C_hh+ss.I+ss.G)
 
-    return ss.clearing_A, ss.clearing_L
+    return np.array([ss.clearing_A, ss.clearing_L])
+
 
 
 def find_ss(model,do_print=False):
@@ -100,10 +109,10 @@ def find_ss(model,do_print=False):
     KL_min = ((1/par.beta+par.delta-1)/(par.alpha*par.Gamma_Y))**(1/(par.alpha-1)) + 1e-2
     KL_max = (par.delta/(par.alpha*par.Gamma_Y))**(1/(par.alpha-1))-1e-2
     KL_mid = (KL_min+KL_max)/2 # middle point between max values as initial capital labor ratio
-    tau_guess = 0.2
+    tau_guess = 0.01
 
     # a. solve for K and L
-    initial_guess = np.array([KL_mid, tau_guess])
+    initial_guess = np.array([KL_mid,tau_guess])
 
     if do_print: 
         print(f'starting at KL={initial_guess[0]:.4f}')
@@ -119,7 +128,6 @@ def find_ss(model,do_print=False):
 
     # c. show
     if do_print:
-
         print(f'steady state found in {elapsed(t0)}')
         print(f'{ss.K = :6.3f}')
         print(f'{ss.B = :6.3f}')
@@ -130,7 +138,11 @@ def find_ss(model,do_print=False):
         print(f'{ss.w = :6.3f}')
         print(f'{ss.G = :6.3f}')
         print(f'{ss.LG = :6.3f}')
+        print(f'{ss.LY = :6.3f}')
+        print(f'{ss.G/ss.Y = :6.3f}')
         print(f'{ss.tau = :6.3f}')
+        print(f'{ss.chi = :6.3f}')
         print(f'{ss.clearing_A = :.2e}')
         print(f'{ss.clearing_L = :.2e}')
         print(f'{ss.clearing_Y = :.2e}')
+        print(f"Discounted utility (ss.du) = {np.sum(ss.du,axis=1).sum()}")

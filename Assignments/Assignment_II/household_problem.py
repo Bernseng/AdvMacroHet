@@ -4,7 +4,7 @@ import numba as nb
 from consav.linear_interp import interp_1d_vec
 
 @nb.njit
-def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u):
+def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,tau,S,chi,du):
     """ solve backwards with vbeg_a_plus from previous iteration """
 
     for i_fix in range(par.Nfix):
@@ -14,7 +14,7 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u):
 
             # i. prepare
             z = par.z_grid[i_z]
-            fac = (wt*z/par.varphi)**(1/par.nu)
+            fac = ((1-tau)*wt*z/par.varphi)**(1/par.nu)
 
             # ii. use focs
             c_endo = (par.beta*vbeg_a_plus[i_fix,i_z,:])**(-1/par.sigma)
@@ -22,15 +22,15 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u):
             l_endo = ell_endo*z
 
             # iii. re-interpolate
-            m_endo = c_endo + par.a_grid - wt*l_endo
-            m_exo = (1+r)*par.a_grid
+            m_endo = c_endo + par.a_grid - (1-tau)*wt*l_endo
+            m_exo = (1+r)*par.a_grid+chi
 
             interp_1d_vec(m_endo,c_endo,m_exo,c[i_fix,i_z,:])
             interp_1d_vec(m_endo,ell_endo,m_exo,ell[i_fix,i_z,:])
             l[i_fix,i_z,:] = ell[i_fix,i_z,:]*z
 
             # iv. saving
-            a[i_fix,i_z,:] = m_exo + wt*l[i_fix,i_z,:] - c[i_fix,i_z,:]
+            a[i_fix,i_z,:] = m_exo + (1-tau)*wt*l[i_fix,i_z,:] - c[i_fix,i_z,:]
 
             # v. refinement at constraint
             for i_a in range(par.Na):
@@ -68,8 +68,8 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u):
                     break
 
         inc[i_fix] = wt*l[i_fix] + r*par.a_grid
-        u[i_fix,:,:] = c[i_fix]**(1-par.sigma)/(1-par.sigma) - par.varphi*ell[i_fix]**(1+par.nu)/(1+par.nu)
-
+        u[i_fix,:,:] = c[i_fix]**(1-par.sigma)/(1-par.sigma) + ((S+par.S_)**(1-par.omega))/(1-par.omega) - par.varphi*ell[i_fix]**(1+par.nu)/(1+par.nu)
+        du[i_fix,:,:] = par.beta * u[i_fix,:,:]
         # b. expectation step
         v_a = c[i_fix]**(-par.sigma)
         vbeg_a[i_fix] = (1+r)*z_trans[i_fix]@v_a
