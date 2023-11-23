@@ -19,13 +19,13 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         self.pols_hh = ['a'] # policy functions
         self.inputs_hh = ['r','wt','tau','chi','S'] # direct inputs
         self.inputs_hh_z = [] # transition matrix inputs (not used today)
-        self.outputs_hh = ['a','c','ell','l','inc','u','du'] # outputs
+        self.outputs_hh = ['a','c','ell','l','inc','u'] # outputs
         self.intertemps_hh = ['vbeg_a'] # intertemporal variables
 
         # c. GE
-        self.shocks = [] # exogenous shocks
+        self.shocks = ['chi'] # exogenous shocks
         self.unknowns = ['K','L','tau'] # endogenous unknowns
-        self.targets = ['clearing_A','clearing_L'] # targets = 0
+        self.targets = ['clearing_A'] # targets = 0
         self.blocks = [ # list of strings to block-functions
             'blocks.production_firm',
             'blocks.mutual_fund',
@@ -68,7 +68,9 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
 
         # e. government
         par.tau_ss = 0.00 # tax rate on wage income
-
+        par.LG_ss = 0.0
+        par.G_ss = 0.0
+        
         # e. misc.
         par.max_iter_ell = 200 # maximum number of iterations when solving for ell 
         par.max_iter_solve = 50_000 # maximum number of iterations when solving household problem
