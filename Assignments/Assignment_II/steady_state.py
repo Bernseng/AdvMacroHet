@@ -69,7 +69,7 @@ def government_utility(x, model):
 
 def obj_ss(x,model,do_print=False):
 
-    KL = x[0]
+    KL, tau = x[0], x[1]
     # tau = x[1] if gov else 0.0
 
     par = model.par
@@ -84,9 +84,9 @@ def obj_ss(x,model,do_print=False):
     
     # c. government
     # ss.LG = LG
-    # ss.tau = tau
-    ss.G = par.Gamma_G*ss.LG
-    ss.LG = ss.tau*ss.L_hh - (ss.G + ss.chi)/ss.w
+    ss.tau = tau
+    # ss.G = par.Gamma_G*ss.LG
+    # ss.LG = ss.tau*ss.L_hh - (ss.G + ss.chi)/ss.w
     ss.S = min(ss.G, par.Gamma_G*ss.LG)
 
     # d. households
@@ -108,10 +108,10 @@ def obj_ss(x,model,do_print=False):
     ss.clearing_L = ss.LY + ss.LG - ss.L
     ss.clearing_Y = ss.Y - (ss.C_hh+ss.I+ss.G)
 
-    return ss.clearing_A
+    return np.array([ss.clearing_A, ss.clearing_L])
 
 
-def find_ss(model,tau,do_print=False):
+def find_ss(model,LG,do_print=False):
     """ find the steady state """
 
     t0 = time.time()
@@ -119,7 +119,6 @@ def find_ss(model,tau,do_print=False):
     par = model.par
     ss = model.ss
 
-    # tau_guess = 0.1
     # LG_guess = 0.1
     # if do_print: 
     #     print(f'starting at tau={tau_guess:.4f}')
@@ -127,16 +126,18 @@ def find_ss(model,tau,do_print=False):
     #  Government
     # ss.LG = LG
     # ss.chi = par.chi_ss
-    ss.tau = tau
-    # ss.LG = par.LG_ss
+    # ss.tau = tau
+    ss.LG = LG
+    ss.G = par.Gamma_G*ss.LG
+
     # ss.LG = ss.tau*ss.L_hh - (ss.G + ss.chi)/ss.w
 
     KL_min = ((1/par.beta+par.delta-1)/(par.alpha*par.Gamma_Y))**(1/(par.alpha-1)) + 1e-2
     KL_max = (par.delta/(par.alpha*par.Gamma_Y))**(1/(par.alpha-1))-1e-2
     KL_mid = (KL_min+KL_max)/2 # middle point between max values as initial capital labor ratio
-
+    tau_guess = 0.1
     # a. solve for K and L
-    initial_guess = np.array([KL_mid])
+    initial_guess = np.array([KL_mid, tau_guess])
 
     if do_print: 
         print(f'starting at KL={KL_mid:.4f}')
@@ -169,4 +170,3 @@ def find_ss(model,tau,do_print=False):
         print(f'{ss.clearing_A = :.2e}')
         print(f'{ss.clearing_L = :.2e}')
         print(f'{ss.clearing_Y = :.2e}')
-        # print(f"Discounted utility (ss.du) = {np.sum(ss.du,axis=1).sum()}")
