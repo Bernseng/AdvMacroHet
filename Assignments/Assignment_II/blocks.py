@@ -30,15 +30,15 @@ def mutual_fund(par,ini,ss,K,rK,A,r):
     r[:] = rK-par.delta
 
 @nb.njit
-def government(par,ini,ss,B,tau,w,wt,G,LG,chi,S):
+def government(par,ini,ss,B,tau,w,wt,G,LG,chi,L_hh):
 
     tau[:] = ss.tau
     B[:] = ss.B
-    wt[:] = (1-tau)*w
-    G[:] = par.Gamma_G*ss.LG
-    S[:] = min(ss.G, par.Gamma_G*ss.LG)
+    G[:] = ss.G
+    LG[:] = ss.LG
     chi[:] = ss.chi
-    LG[:] = tau*ss.L_hh - (G + chi)/w
+    wt[:] = (1-tau)*w
+
 
 @nb.njit
 def market_clearing(par,ini,ss,A,A_hh,L,LY,LG,L_hh,Y,C_hh,K,I,G,clearing_A,clearing_L,clearing_Y):

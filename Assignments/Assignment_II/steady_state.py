@@ -69,7 +69,7 @@ def government_utility(x, model):
 
 def obj_ss(x,model,do_print=False):
 
-    KL,tau = x[0], x[1]
+    KL = x[0]
     # tau = x[1] if gov else 0.0
 
     par = model.par
@@ -83,7 +83,9 @@ def obj_ss(x,model,do_print=False):
     ss.r = ss.rK - par.delta
     
     # c. government
-    ss.tau = tau
+    # ss.LG = LG
+    # ss.tau = tau
+    ss.G = par.Gamma_G*ss.LG
     ss.LG = ss.tau*ss.L_hh - (ss.G + ss.chi)/ss.w
     ss.S = min(ss.G, par.Gamma_G*ss.LG)
 
@@ -106,10 +108,10 @@ def obj_ss(x,model,do_print=False):
     ss.clearing_L = ss.LY + ss.LG - ss.L
     ss.clearing_Y = ss.Y - (ss.C_hh+ss.I+ss.G)
 
-    return np.array([ss.clearing_A, ss.clearing_L])
+    return ss.clearing_A
 
 
-def find_ss(model,LG,do_print=False):
+def find_ss(model,tau,do_print=False):
     """ find the steady state """
 
     t0 = time.time()
@@ -117,16 +119,15 @@ def find_ss(model,LG,do_print=False):
     par = model.par
     ss = model.ss
 
-    tau_guess = 0.1
-
+    # tau_guess = 0.1
+    # LG_guess = 0.1
     # if do_print: 
     #     print(f'starting at tau={tau_guess:.4f}')
 
     #  Government
-    ss.LG = LG
-    ss.G = par.Gamma_G*ss.LG
-
-    # ss.tau = tau
+    # ss.LG = LG
+    # ss.chi = par.chi_ss
+    ss.tau = tau
     # ss.LG = par.LG_ss
     # ss.LG = ss.tau*ss.L_hh - (ss.G + ss.chi)/ss.w
 
@@ -135,7 +136,7 @@ def find_ss(model,LG,do_print=False):
     KL_mid = (KL_min+KL_max)/2 # middle point between max values as initial capital labor ratio
 
     # a. solve for K and L
-    initial_guess = np.array([KL_mid, tau_guess])
+    initial_guess = np.array([KL_mid])
 
     if do_print: 
         print(f'starting at KL={KL_mid:.4f}')

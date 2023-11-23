@@ -24,8 +24,8 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
 
         # c. GE
         self.shocks = ['chi'] # exogenous shocks
-        self.unknowns = ['K','L','tau'] # endogenous unknowns
-        self.targets = ['clearing_A'] # targets = 0
+        self.unknowns = ['K','L'] # endogenous unknowns
+        self.targets = ['clearing_A','clearing_L'] # targets = 0
         self.blocks = [ # list of strings to block-functions
             'blocks.production_firm',
             'blocks.mutual_fund',
@@ -68,6 +68,7 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
 
         # e. government
         par.tau_ss = 0.00 # tax rate on wage income
+        par.chi_ss = 0.0
         par.LG_ss = 0.0
         par.G_ss = 0.0
         
