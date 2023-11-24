@@ -13,6 +13,8 @@ def production_firm(par,ini,ss,K,LY,rK,w,Y):
 
     K_lag = lag(ini.K,K)
 
+    LY[:] = ss.LY
+
     # a. implied prices (remember K and L are inputs)
     rK[:] = par.alpha*par.Gamma_Y*(K_lag/LY)**(par.alpha-1.0)
     w[:] = (1.0-par.alpha)*par.Gamma_Y*(K_lag/LY)**par.alpha
@@ -39,7 +41,6 @@ def government(par,ini,ss,B,tau,w,wt,G,LG,S,chi):
     S[:] = ss.S
     # S[:] = min(G,LG*par.Gamma_G)
     chi[:] = ss.chi
-    # S[:] = ss.S
     wt[:] = (1-tau)*w
 
 

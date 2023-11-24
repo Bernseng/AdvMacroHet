@@ -85,9 +85,10 @@ def obj_ss(x,model,do_print=False):
     # c. government
     # ss.LG = LG
     ss.tau = tau
-    # ss.G = par.Gamma_G*ss.LG
+    ss.G = par.Gamma_G*ss.LG
     # ss.LG = ss.tau*ss.L_hh - (ss.G + ss.chi)/ss.w
     ss.S = min(ss.G, par.Gamma_G*ss.LG)
+    ss.B = ss.tau*ss.w*ss.L_hh - ss.G - ss.LG*ss.w - ss.chi
 
     # d. households
     ss.wt = (1-ss.tau)*ss.w
@@ -96,7 +97,7 @@ def obj_ss(x,model,do_print=False):
     model.simulate_hh_ss(do_print=do_print)
 
     # e. market clearing
-    ss.B = 0.0
+    # ss.B = 0.0
     ss.L = ss.L_hh
     ss.LY = ss.L - ss.LG
     ss.K = KL*ss.LY
@@ -108,7 +109,7 @@ def obj_ss(x,model,do_print=False):
     ss.clearing_L = ss.LY + ss.LG - ss.L
     ss.clearing_Y = ss.Y - (ss.C_hh+ss.I+ss.G)
 
-    return np.array([ss.clearing_A, ss.clearing_L])
+    return np.array([ss.clearing_A, ss.B])
 
 
 def find_ss(model,LG,do_print=False):
@@ -128,7 +129,9 @@ def find_ss(model,LG,do_print=False):
     # ss.chi = par.chi_ss
     # ss.tau = tau
     ss.LG = LG
-    ss.G = par.Gamma_G*ss.LG
+    # ss.chi = par.chi_ss
+    # chi = ss.tau*ss.w*ss.L_hh-ss.G-ss.w*ss.LG
+    # ss.G = par.Gamma_G*ss.LG
 
     # ss.LG = ss.tau*ss.L_hh - (ss.G + ss.chi)/ss.w
 
@@ -164,7 +167,6 @@ def find_ss(model,LG,do_print=False):
         print(f'{ss.G = :6.3f}')
         print(f'{ss.LG = :6.3f}')
         print(f'{ss.LY = :6.3f}')
-        print(f'{ss.G/ss.Y = :6.3f}')
         print(f'{ss.tau = :6.3f}')
         print(f'{ss.chi = :6.3f}')
         print(f'{ss.clearing_A = :.2e}')
