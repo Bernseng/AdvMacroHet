@@ -23,8 +23,8 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         self.intertemps_hh = ['vbeg_a'] # intertemporal variables
 
         # c. GE
-        self.shocks = ['chi'] # exogenous shocks
-        self.unknowns = ['K','L','tau'] # endogenous unknowns
+        self.shocks = [] # exogenous shocks
+        self.unknowns = ['K','LG','LY'] # endogenous unknowns
         self.targets = ['clearing_A','clearing_L'] # targets = 0
         self.blocks = [ # list of strings to block-functions
             'blocks.production_firm',
@@ -67,7 +67,7 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         par.Na = 100 # number of grid points
 
         # e. government
-        par.tau_ss = 0.00 # tax rate on wage income
+        par.tau_ss = 0.015 # tax rate on wage income
         par.chi_ss = 0.0
         par.LG_ss = 0.0
         par.G_ss = 0.0

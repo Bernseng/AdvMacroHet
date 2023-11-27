@@ -49,24 +49,6 @@ def prepare_hh_ss(model):
         # b. expectation
         ss.vbeg_a[i_fix] = ss.z_trans[i_fix]@v_a
 
-def government_utility(x, model):
-
-    par = model.par
-    ss = model.ss
-
-    # Update model with new tau
-    tau = x
-
-    # Calculate government variables based on tau
-      # Calculate government services
-
-    # Update the households' decisions based on the new government variables
-    model.solve_hh_ss()
-    model.simulate_hh_ss()
-
-    # Calculate and return the negative of the expected discounted utility
-    return -np.sum(ss.du, axis=1).sum()
-
 def obj_ss(x,model,do_print=False):
 
     KL, tau = x[0], x[1]
@@ -83,12 +65,13 @@ def obj_ss(x,model,do_print=False):
     ss.r = ss.rK - par.delta
     
     # c. government
-    # ss.LG = LG
+    # ss.LG = 0.0
     ss.tau = tau
     ss.G = par.Gamma_G*ss.LG
-    # ss.LG = ss.tau*ss.L_hh - (ss.G + ss.chi)/ss.w
     ss.S = min(ss.G, par.Gamma_G*ss.LG)
-    ss.B = ss.tau*ss.w*ss.L_hh - ss.G - ss.LG*ss.w - ss.chi
+
+    # c. government budget constraint
+    ss.budget = ss.tau*ss.w*ss.L_hh - ss.G - ss.LG*ss.w - ss.chi
 
     # d. households
     ss.wt = (1-ss.tau)*ss.w
@@ -97,19 +80,18 @@ def obj_ss(x,model,do_print=False):
     model.simulate_hh_ss(do_print=do_print)
 
     # e. market clearing
-    # ss.B = 0.0
-    ss.L = ss.L_hh
-    ss.LY = ss.L - ss.LG
+    # ss.L = ss.L_hh
+    ss.LY = ss.L_hh - ss.LG
     ss.K = KL*ss.LY
-    ss.Y = par.Gamma_Y*ss.K**(par.alpha)*ss.LY**(1-par.alpha)
+    ss.Y = par.Gamma_Y*ss.K**(par.alpha)*ss.LY**(1.0-par.alpha)
     ss.I = par.delta*ss.K
-    ss.A = ss.K + ss.B
+    ss.A = ss.K
     ss.C_hh = ss.Y - ss.I - ss.G
     ss.clearing_A = ss.A - ss.A_hh
-    ss.clearing_L = ss.LY + ss.LG - ss.L
+    ss.clearing_L = ss.LY + ss.LG - ss.L_hh
     ss.clearing_Y = ss.Y - (ss.C_hh+ss.I+ss.G)
 
-    return np.array([ss.clearing_A, ss.B])
+    return np.array([ss.clearing_A, ss.budget])
 
 
 def find_ss(model,LG,do_print=False):
@@ -120,25 +102,15 @@ def find_ss(model,LG,do_print=False):
     par = model.par
     ss = model.ss
 
-    # LG_guess = 0.1
-    # if do_print: 
-    #     print(f'starting at tau={tau_guess:.4f}')
-
     #  Government
-    # ss.LG = LG
-    # ss.chi = par.chi_ss
-    # ss.tau = tau
     ss.LG = LG
-    # ss.chi = par.chi_ss
-    # chi = ss.tau*ss.w*ss.L_hh-ss.G-ss.w*ss.LG
-    # ss.G = par.Gamma_G*ss.LG
-
-    # ss.LG = ss.tau*ss.L_hh - (ss.G + ss.chi)/ss.w
+    ss.chi = par.chi_ss
 
     KL_min = ((1/par.beta+par.delta-1)/(par.alpha*par.Gamma_Y))**(1/(par.alpha-1)) + 1e-2
     KL_max = (par.delta/(par.alpha*par.Gamma_Y))**(1/(par.alpha-1))-1e-2
     KL_mid = (KL_min+KL_max)/2 # middle point between max values as initial capital labor ratio
-    tau_guess = 0.1
+    tau_guess = par.tau_ss
+
     # a. solve for K and L
     initial_guess = np.array([KL_mid, tau_guess])
 
@@ -158,9 +130,8 @@ def find_ss(model,LG,do_print=False):
     if do_print:
         print(f'steady state found in {elapsed(t0)}')
         print(f'{ss.K = :6.3f}')
-        print(f'{ss.B = :6.3f}')
+        print(f'{ss.budget = :6.3f}')
         print(f'{ss.A_hh = :6.3f}')
-        print(f'{ss.L = :6.3f}')
         print(f'{ss.Y = :6.3f}')
         print(f'{ss.r = :6.3f}')
         print(f'{ss.w = :6.3f}')
