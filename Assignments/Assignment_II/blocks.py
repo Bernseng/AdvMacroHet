@@ -13,8 +13,6 @@ def production_firm(par,ini,ss,K,LY,rK,w,Y):
 
     K_lag = lag(ini.K,K)
 
-    # LY[:] = ss.LY
-
     # a. implied prices (remember K and LY are inputs)
     rK[:] = par.alpha*par.Gamma_Y*(K_lag/LY)**(par.alpha-1.0)
 
@@ -33,22 +31,21 @@ def mutual_fund(par,ini,ss,K,rK,A,r):
     r[:] = rK-par.delta
 
 @nb.njit
-def government(par,ini,ss,tau,w,wt,G,LG,S,chi,budget):
+def government(par,ini,ss,tau,w,wt,G,LG,L,LY,S,chi,B):
 
-    tau[:] = ss.tau
-    LG[:] = ss.LG
-    G[:] = par.Gamma_G*LG
-    chi[:] = ss.chi
-    # S[:] = ss.S
-    S[:] = np.minimum(G,LG*par.Gamma_G)
-    # B[:] = tau*w*L_hh-G-LG*w-chi
+    # Total employment
+    LG[:] = par.Gamma_G * G
+    L[:] = LG + LY
+
+    # Implied taxation
     wt[:] = (1-tau)*w
+    tau[:] = (G+wt*LG)/(wt*(LY+LG))
 
-    # Government budget constraint
-    lhs = G + w * LG + chi
-    rhs = tau * w * ss.L_hh
-    budget[:] = rhs - lhs
+    # dept
+    B[:] = -chi
 
+    # service flows
+    S[:] = np.minimum(G,LG*par.Gamma_G)
 
 
 @nb.njit

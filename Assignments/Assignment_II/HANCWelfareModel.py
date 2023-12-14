@@ -23,8 +23,8 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         self.intertemps_hh = ['vbeg_a'] # intertemporal variables
 
         # c. GE
-        self.shocks = [] # exogenous shocks
-        self.unknowns = ['K','LG','LY'] # endogenous unknowns
+        self.shocks = ['chi','G'] # exogenous shocks
+        self.unknowns = ['K','LY'] # endogenous unknowns
         self.targets = ['clearing_A','clearing_L'] # targets = 0
         self.blocks = [ # list of strings to block-functions
             'blocks.production_firm',
