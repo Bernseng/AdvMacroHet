@@ -34,25 +34,27 @@ def mutual_fund(par,ini,ss,K,rK,A,r):
 def government(par,ini,ss,tau,w,wt,G,LG,L,LY,S,chi,B):
 
     # Total employment
-    LG[:] = par.Gamma_G * G
-    L[:] = LG + LY
+    LG[:] = G/par.Gamma_G
+
+    L[:] = LG+LY
 
     # Implied taxation
-    wt[:] = (1-tau)*w
-    tau[:] = (G+wt*LG)/(wt*(LY+LG))
+    tau[:] = (G+w*LG)/w*(LG+LY)
+    wt[:] = (1.0-tau)*w
 
     # dept
-    B[:] = -chi
+    B[:] = 0.0
 
     # service flows
-    S[:] = np.minimum(G,LG*par.Gamma_G)
+    S[:] = np.minimum(G,par.Gamma_G*LG)
+
 
 
 @nb.njit
-def market_clearing(par,ini,ss,A,A_hh,LY,LG,L_hh,Y,C_hh,K,I,G,clearing_A,clearing_L,clearing_Y):
+def market_clearing(par,ini,ss,A,A_hh,LY,LG,L_hh,L,Y,C_hh,K,I,G,clearing_A,clearing_L,clearing_Y):
     
     # L = L_hh
     clearing_A[:] = A-A_hh
-    clearing_L[:] = LY+LG-L_hh
-    I[:] = K-(1-par.delta)*lag(ini.K,K)
+    clearing_L[:] = L_hh-LY+LG
+    I = K-(1.0-par.delta)*lag(ini.K,K)
     clearing_Y[:] = Y-C_hh-I-G

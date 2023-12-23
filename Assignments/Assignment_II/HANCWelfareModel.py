@@ -50,7 +50,7 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         par.varphi = 1.0 # dis-utility of labor
         par.nu = 1.0 # inverse Frisch elasticity of labor supply
         par.omega = 2.0
-        par.S_ = 10**(-8)
+        par.S_ = 10.0**(-8)
 
         # b. income parameters
         par.rho_z = 0.96 # AR(1) parameter
@@ -73,7 +73,7 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         par.G_ss = 0.0
         
         # e. misc.
-        par.max_iter_ell = 200 # maximum number of iterations when solving for ell 
+        par.max_iter_ell = 500 # maximum number of iterations when solving for ell 
         par.max_iter_solve = 50_000 # maximum number of iterations when solving household problem
         par.max_iter_simulate = 50_000 # maximum number of iterations when simulating household problem
         
