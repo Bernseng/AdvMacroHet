@@ -41,9 +41,16 @@ def government(par,ini,ss,tau,w,wt,G,LG,L,LY,S,chi,B):
     # Implied taxation
     tau[:] = (G+w*LG)/w*(LG+LY)
     wt[:] = (1.0-tau)*w
+    # chi[:] = ss.chi
 
     # dept
-    B[:] = 0.0
+    # B[:] = G+chi-tau
+    # B[:] = 0.0
+    for t in range(par.T):
+        
+        B_lag = prev(B,t,ini.B)
+        # tau[t] = ss.tau + par.phi*(B_lag-ss.B)
+        B[t] = (B_lag + G[t] + chi[t] - tau[t])
 
     # service flows
     S[:] = np.minimum(G,par.Gamma_G*LG)
@@ -55,6 +62,6 @@ def market_clearing(par,ini,ss,A,A_hh,LY,LG,L_hh,L,Y,C_hh,K,I,G,clearing_A,clear
     
     # L = L_hh
     clearing_A[:] = A-A_hh
-    clearing_L[:] = L_hh-LY+LG
+    clearing_L[:] = L_hh-LY-LG
     I = K-(1.0-par.delta)*lag(ini.K,K)
     clearing_Y[:] = Y-C_hh-I-G
