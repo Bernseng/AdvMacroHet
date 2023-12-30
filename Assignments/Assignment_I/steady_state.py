@@ -18,23 +18,26 @@ def prepare_hh_ss(model):
     ############
     
     # a. beta, eta and chi
-    par.beta_grid[:] = np.array([par.beta_mean-par.beta_delta,par.beta_mean,par.beta_mean+par.beta_delta])
-
-    par.chi_grid[:] = np.array([0,0,1.0])
-    par.eta0_grid[:] = np.zeros_like(par.chi_grid)
-    par.eta1_grid[:] = np.zeros_like(par.chi_grid)
+    # beta_grid = np.array([par.beta_mean-par.beta_delta,par.beta_mean,par.beta_mean+par.beta_delta])
+    beta_grid = np.linspace(par.beta_mean-par.beta_delta,par.beta_mean+par.beta_delta,par.Nbeta)
+    par.beta_grid[:] = np.tile(beta_grid,2)
+    par.eta0_grid[:] = np.hstack((np.ones(par.Nbeta),np.zeros(par.Nbeta)))
+    par.eta1_grid[:] = np.hstack((np.zeros(par.Nbeta),np.ones(par.Nbeta)))
+    # par.chi_grid = np.array([0,0,1.0])
+    # par.eta0_grid = np.zeros_like(par.chi_grid)
+    # par.eta1_grid = np.zeros_like(par.chi_grid)
 
     # assign values to eta0 and eta1 for values in chi
-    for i, chi in enumerate(par.chi_grid):
-        if chi == 0:
-            par.eta0_grid[i] = 1.0
-            par.eta1_grid[i] = 0
-        else:
-            par.eta1_grid[i] = 1.0
-            par.eta0_grid[i] = 0    
+    # for i, chi in enumerate(par.chi_grid):
+    #     if chi == 0:
+    #         par.eta0_grid[i] = 1.0
+    #         par.eta1_grid[i] = 0
+    #     else:
+    #         par.eta1_grid[i] = 1.0
+    #         par.eta0_grid[i] = 0    
 
     # b. a
-    par.a_grid[:] = equilogspace(0.0,ss.w*par.a_max,par.Na)
+    par.a_grid[:] = equilogspace(0.0,ss.w0*par.a_max,par.Na)
     
     # c. z
     par.z_grid[:],z_trans,z_ergodic,_,_ = log_rouwenhorst(par.rho_z,par.sigma_psi,par.Nz)
@@ -45,15 +48,20 @@ def prepare_hh_ss(model):
     
     for i_fix in range(par.Nfix):
         ss.z_trans[i_fix,:,:] = z_trans
-        ss.Dbeg[i_fix,:,0] = z_ergodic/par.Nfix # ergodic at a_lag = 0.0
-        ss.Dbeg[i_fix,:,1:] = 0.0 # none with a_lag > 0.0
+
+    ss.Dbeg[:3,:,0] = z_ergodic*2/3*1/3 # ergodic at a_lag = 0.0
+    ss.Dbeg[:3,:,1:] = 0.0 # none with a_lag > 0.0
+    ss.Dbeg[3:,:,0] = z_ergodic*1/3*1/3 # ergodic at a_lag = 0.0
+    ss.Dbeg[3:,:,1:] = 0.0 # none with a_lag > 0.0
+        # ss.Dbeg[i_fix,:,0] = z_ergodic/par.Nfix # ergodic at a_lag = 0.0
+        # ss.Dbeg[i_fix,:,1:] = 0.0 # none with a_lag > 0.0
 
     ################################################
     # 3. initial guess for intertemporal variables #
     ################################################
 
     # a. raw value
-    y = ss.w*par.z_grid
+    y = ss.w0*par.z_grid
 
     c = m = (1+ss.r-par.delta)*par.a_grid[np.newaxis,:] + y[:,np.newaxis]
     v_a = (1+ss.r-par.delta)*c**(-par.sigma)
@@ -69,18 +77,22 @@ def obj_ss(K_ss,model,do_print=False):
 
     # a. production
     ss.Gamma = par.Gamma_ss # model user choice
+    ss.phi0 = par.phi0_ss
+    ss.phi1 = par.phi1_ss
     ss.A = ss.K = K_ss
-    ss.L0 = 2/3
-    ss.L1 = 1/3
-    ss.phi1 = 2.0
-    ss.phi0 = 1.0
+    ss.L0 = ss.phi0*2/3 # from equation (5) combined with P(chi=0) = 2/3
+    ss.L1 = ss.phi1*1/3 # from equation (5) combined with P(chi=1) = 1/3
 
     # b. steady-state output
-    ss.Y = ss.Gamma*ss.K**par.alpha*ss.L0**((1.0-par.alpha)/2)*ss.L1**((1.0-par.alpha)/2)
+    ss.Y = ss.Gamma*ss.K**par.alpha*(ss.L0*ss.L1)**((1-par.alpha)/2)
 
     # c. implied prices
-    ss.rK = par.alpha*ss.Gamma*(ss.K/(ss.L0+ss.L1))**(par.alpha-1.0)
-    ss.w = (1.0-par.alpha)*ss.Gamma*(ss.K/(ss.L0+ss.L1))**par.alpha
+    # ss.rK = par.alpha*ss.Gamma*(ss.K/(ss.L0+ss.L1))**(par.alpha-1.0)
+    # ss.w0 = (1.0-par.alpha)*ss.Gamma*(ss.K/ss.L0)**par.alpha
+    # ss.w1 = (1.0-par.alpha)*ss.Gamma*(ss.K/ss.L1)**par.alpha
+    ss.rK = par.alpha*ss.Gamma*(ss.K/ss.L0*ss.L1)**(par.alpha-1.0)*(ss.L0*ss.L1)**((1-par.alpha)/2)
+    ss.w0 = (1.0-par.alpha/2)*ss.Gamma*(ss.K**par.alpha)*ss.L1**(-par.alpha/2)*ss.L0**(-par.alpha/2)
+    ss.w1 = (1.0-par.alpha/2)*ss.Gamma*(ss.K**par.alpha)*ss.L0**(-par.alpha/2)*ss.L1**(-par.alpha/2)
 
     # b. implied prices
     ss.r = ss.rK - par.delta
@@ -90,8 +102,8 @@ def obj_ss(K_ss,model,do_print=False):
 
         print(f'guess {ss.K = :.4f}')    
         print(f'implied {ss.r = :.4f}')
-        print(f'implied {ss.w = :.4f}')
-        # print(f'implied {ss.w1 = :.4f}')
+        print(f'implied {ss.w0 = :.4f}')
+        print(f'implied {ss.w1 = :.4f}')
 
 
     model.solve_hh_ss(do_print=do_print)
@@ -103,12 +115,10 @@ def obj_ss(K_ss,model,do_print=False):
     if do_print: print(f'implied {ss.A_hh = :.4f}')
 
     # d. market clearing
+    ss.I = par.delta*ss.K
     ss.clearing_A = ss.A - ss.A_hh
-    ss.clearing_L0 = ss.L0-ss.L0_hh
-    ss.clearing_L1 = ss.L1-ss.L1_hh
-
-    ss.I = ss.K - (1.0-par.delta)*ss.K
-    ss.clearing_Y = ss.Y - ss.C_hh - ss.I
+    ss.clearing_L = (ss.L0+ss.L1)-(ss.L0_hh+ss.L1_hh)
+    ss.clearing_Y = ss.Y-ss.C_hh-ss.I
 
     return ss.clearing_A # target to hit
     

@@ -19,15 +19,15 @@ class HANCModelClass(EconModelClass,GEModelClass):
         # b. household
         self.grids_hh = ['a'] # grids
         self.pols_hh = ['a'] # policy functions
-        self.inputs_hh = ['r','w','phi0','phi1'] # direct inputs
+        self.inputs_hh = ['r','w0','w1','phi0','phi1'] # direct inputs
         self.inputs_hh_z = [] # transition matrix inputs (not used today)
-        self.outputs_hh = ['a','c','l0','l1'] # outputs
+        self.outputs_hh = ['a','c','l0','l1','u'] # outputs
         self.intertemps_hh = ['vbeg_a'] # intertemporal variables
 
         # c. GE
-        self.shocks = ['phi1'] # exogenous shocks (not used today)
-        self.unknowns = ['K','L0','L1'] # endogenous unknowns (not used today)
-        self.targets = ['clearing_A','clearing_L0','clearing_L1'] # targets = 0 (not used today)
+        self.shocks = ['Gamma','phi0','phi1'] # exogenous shocks
+        self.unknowns = ['K','L0','L1'] # endogenous unknowns
+        self.targets = ['clearing_A','clearing_L','clearing_Y'] # targets = 0
         self.blocks = [ # list of strings to block-functions
             'blocks.production_firm',
             'blocks.mutual_fund',
@@ -42,8 +42,10 @@ class HANCModelClass(EconModelClass,GEModelClass):
 
         par = self.par
 
-        par.Nfix = 3 # number of fixed discrete states (none here)
+        par.Nfix = 6 # number of fixed discrete states
         par.Nz = 7 # number of stochastic discrete states (here productivity)
+        par.phi0_ss = 1.0 # steady state productivity of labor type 0
+        par.phi1_ss = 2.0 # steady state productivity of labor type 1
 
         # a. preferences
         par.sigma = 2.0 # CRRA coefficient
@@ -61,6 +63,11 @@ class HANCModelClass(EconModelClass,GEModelClass):
         par.epsilon = 1.0
         par.nu = 0.5
 
+        # d. shocks
+        par.jump_phi1 = 0.10 # initial jump
+        par.rho_phi1 = 0.90 # AR(1) coefficient
+        par.std_phi1 = 0.01 # std. of innovation
+
         # f. grids         
         par.a_max = 500.0 # maximum point in grid for a
         par.Na = 300 # number of grid points
@@ -70,11 +77,21 @@ class HANCModelClass(EconModelClass,GEModelClass):
         par.w_ss_target = 1.0
 
         # h. misc.
+        par.T = 500 # length of transition path
+        par.simT = 2_000 # length of simulation 
+
         par.max_iter_solve = 50_000 # maximum number of iterations when solving household problem
         par.max_iter_simulate = 50_000 # maximum number of iterations when simulating household problem
-        
+        par.max_iter_broyden = 100 # maximum number of iteration when solving eq. system
+
         par.tol_solve = 1e-12 # tolerance when solving household problem
         par.tol_simulate = 1e-12 # tolerance when simulating household problem
+        par.tol_broyden = 1e-10 # tolerance when solving eq. system
+        
+        par.py_hh = False # call solve_hh_backwards in Python-model
+        par.py_block = True # call blocks in Python-model
+        par.full_z_trans = False # let z_trans vary over endogenous states
+        par.warnings = True # print warnings if nans are encountered
         
     def allocate(self):
         """ allocate model """
@@ -82,8 +99,8 @@ class HANCModelClass(EconModelClass,GEModelClass):
         par = self.par
 
         # a. grids   
+        par.Nbeta = 3
         par.beta_grid = np.zeros(par.Nfix)
-        par.chi_grid = np.zeros(par.Nfix)
         par.eta0_grid = np.zeros(par.Nfix)
         par.eta1_grid = np.zeros(par.Nfix)
 
