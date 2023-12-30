@@ -57,7 +57,7 @@ def obj_ss(x,model,do_print=False):
 
     # a. firms
     ss.LY = LY
-    ss.rK = par.alpha*par.Gamma_Y*(KL)**(par.alpha-1)
+    ss.rK = par.alpha*par.Gamma_Y*(KL)**(par.alpha-1.0)
     ss.w = (1.0-par.alpha)*par.Gamma_Y*(KL)**par.alpha
 
     # b. arbitrage
@@ -86,8 +86,8 @@ def obj_ss(x,model,do_print=False):
     ss.A = ss.K
     ss.C_hh = ss.Y - ss.I - ss.G
     ss.clearing_A = ss.A - ss.A_hh
-    ss.clearing_L = ss.LY + ss.LG - ss.L_hh
-    ss.clearing_Y = ss.Y - (ss.C_hh+ss.I+ss.G)
+    ss.clearing_L = ss.L_hh - ss.LY - ss.LG
+    ss.clearing_Y = ss.Y - ss.C_hh - ss.I - ss.G
     
     return np.array([ss.clearing_A, ss.clearing_L])
 
