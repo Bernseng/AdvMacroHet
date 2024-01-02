@@ -22,7 +22,7 @@ def solve_hh_backwards(par,z_trans,r,w0,w1,phi0,phi1,vbeg_a_plus,vbeg_a,a,c,l0,l
             l1[i_fix,i_z,:] = phi1*par.eta1_grid[i_fix]*par.z_grid[i_z]
             
             ## ii. total income (from labor supply of both types and capital)
-            m = (1+r-par.delta)*par.a_grid + w0*l0[i_fix,i_z,:]+w1*l1[i_fix,i_z,:]
+            m = (1+r)*par.a_grid + w0*l0[i_fix,i_z,:]+w1*l1[i_fix,i_z,:]
 
             # iii. EGM
             c_endo = (par.beta_grid[i_fix]*vbeg_a_plus[i_fix,i_z])**(-1/par.sigma)
@@ -34,7 +34,7 @@ def solve_hh_backwards(par,z_trans,r,w0,w1,phi0,phi1,vbeg_a_plus,vbeg_a,a,c,l0,l
             c[i_fix,i_z] = m-a[i_fix,i_z]
 
         # b. expectation step
-        v_a = (1+r-par.delta)*c[i_fix]**(-par.sigma)
+        v_a = (1+r)*c[i_fix]**(-par.sigma)
         vbeg_a[i_fix] = z_trans[i_fix]@v_a
 
         # c. utility

@@ -84,15 +84,13 @@ def obj_ss(K_ss,model,do_print=False):
     ss.L1 = ss.phi1*1/3 # from equation (5) combined with P(chi=1) = 1/3
 
     # b. steady-state output
-    ss.Y = ss.Gamma*ss.K**par.alpha*(ss.L0*ss.L1)**((1-par.alpha)/2)
+    ss.Y = ss.Gamma*(ss.K**par.alpha)*(ss.L0**((1-par.alpha)/2))*(ss.L1**((1-par.alpha)/2))
 
     # c. implied prices
-    # ss.rK = par.alpha*ss.Gamma*(ss.K/(ss.L0+ss.L1))**(par.alpha-1.0)
-    # ss.w0 = (1.0-par.alpha)*ss.Gamma*(ss.K/ss.L0)**par.alpha
-    # ss.w1 = (1.0-par.alpha)*ss.Gamma*(ss.K/ss.L1)**par.alpha
-    ss.rK = par.alpha*ss.Gamma*(ss.K/ss.L0*ss.L1)**(par.alpha-1.0)*(ss.L0*ss.L1)**((1-par.alpha)/2)
-    ss.w0 = (1.0-par.alpha/2)*ss.Gamma*(ss.K**par.alpha)*ss.L1**(-par.alpha/2)*ss.L0**(-par.alpha/2)
-    ss.w1 = (1.0-par.alpha/2)*ss.Gamma*(ss.K**par.alpha)*ss.L0**(-par.alpha/2)*ss.L1**(-par.alpha/2)
+
+    ss.rK = par.alpha*ss.Gamma*ss.K**(par.alpha-1.0)*(ss.L0**((1-par.alpha)/2))*(ss.L1**((1-par.alpha)/2))
+    ss.w0 = ((1.0-par.alpha)/2)*ss.Gamma*(ss.K**par.alpha)*ss.L0**((-par.alpha-1)/2)*ss.L1**((1-par.alpha)/2)
+    ss.w1 = ((1.0-par.alpha)/2)*ss.Gamma*(ss.K**par.alpha)*ss.L1**((-par.alpha-1)/2)*ss.L0**((1-par.alpha)/2)
 
     # b. implied prices
     ss.r = ss.rK - par.delta
@@ -117,7 +115,8 @@ def obj_ss(K_ss,model,do_print=False):
     # d. market clearing
     ss.I = par.delta*ss.K
     ss.clearing_A = ss.A - ss.A_hh
-    ss.clearing_L = (ss.L0+ss.L1)-(ss.L0_hh+ss.L1_hh)
+    ss.clearing_L0 = ss.L0-ss.L0_hh
+    ss.clearing_L1 = ss.L1-ss.L1_hh
     ss.clearing_Y = ss.Y-ss.C_hh-ss.I
 
     return ss.clearing_A # target to hit

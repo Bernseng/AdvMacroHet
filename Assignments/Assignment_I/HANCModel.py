@@ -1,4 +1,5 @@
 import numpy as np
+import numba as nb
 
 from EconModel import EconModelClass
 from GEModelTools import GEModelClass
@@ -27,7 +28,7 @@ class HANCModelClass(EconModelClass,GEModelClass):
         # c. GE
         self.shocks = ['Gamma','phi0','phi1'] # exogenous shocks
         self.unknowns = ['K','L0','L1'] # endogenous unknowns
-        self.targets = ['clearing_A','clearing_L','clearing_Y'] # targets = 0
+        self.targets = ['clearing_A','clearing_L0','clearing_L1'] # targets = 0
         self.blocks = [ # list of strings to block-functions
             'blocks.production_firm',
             'blocks.mutual_fund',
@@ -109,3 +110,12 @@ class HANCModelClass(EconModelClass,GEModelClass):
 
     prepare_hh_ss = steady_state.prepare_hh_ss
     find_ss = steady_state.find_ss
+
+    def v_ss(self):
+        """ social welfare in transition path """
+
+        par = self.par
+        path = self.path
+        for i_fix in nb.prange(par.Nfix):
+            v = np.sum([par.beta_grid[i_fix]**t*np.sum(path.u[t,i_fix]*path.D[t,i_fix]/np.sum(path.D[t,i_fix])) for t in range(par.T)])
+        return v
