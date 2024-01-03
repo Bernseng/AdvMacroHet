@@ -25,7 +25,7 @@ def production_firm(par,ini,ss,K,LY,rK,w,Y):
 def mutual_fund(par,ini,ss,K,rK,A,r):
 
     # a. total assets
-    A[:] = K 
+    A[:] = K + ss.B
 
     # b. return
     r[:] = rK-par.delta
@@ -35,33 +35,31 @@ def government(par,ini,ss,tau,w,wt,G,LG,L,LY,S,chi,B):
 
     # Total employment
     LG[:] = G/par.Gamma_G
-
     L[:] = LG+LY
 
     # Implied taxation
-    tau[:] = (G+w*LG)/w*(LG+LY)
+    tau[:] = (G+w*LG+chi)/(w*(LY+LG))
     wt[:] = (1.0-tau)*w
     # chi[:] = ss.chi
 
     # dept
-    # B[:] = G+chi-tau
-    # B[:] = 0.0
-    for t in range(par.T):
+    B[:] = 0.0
+    # B[:] = (G+w*LG+chi)-(tau*w*L)
+    # for t in range(par.T):
         
-        B_lag = prev(B,t,ini.B)
-        # tau[t] = ss.tau + par.phi*(B_lag-ss.B)
-        B[t] = (B_lag + G[t] + chi[t] - tau[t])
+    #     B_lag = prev(B,t,ini.B)
+    #     # tau[t] = ss.tau + par.phi*(B_lag-ss.B)
+    #     B[t] = (B_lag + G[t] + chi[t] - tau[t])
 
     # service flows
     S[:] = np.minimum(G,par.Gamma_G*LG)
 
-
-
 @nb.njit
-def market_clearing(par,ini,ss,A,A_hh,LY,LG,L_hh,L,Y,C_hh,K,I,G,clearing_A,clearing_L,clearing_Y):
+def market_clearing(par,ini,ss,A,A_hh,L_hh,L,Y,C_hh,K,I,G,clearing_A,clearing_L,clearing_Y):
     
     # L = L_hh
+    # clearing_S[:] = (G+w*LG+chi)-(tau*w*L_hh)
     clearing_A[:] = A-A_hh
-    clearing_L[:] = L_hh-LY-LG
-    I = K-(1.0-par.delta)*lag(ini.K,K)
+    clearing_L[:] = L_hh-L
+    I[:] = K-(1.0-par.delta)*lag(ini.K,K)
     clearing_Y[:] = Y-C_hh-I-G

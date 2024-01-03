@@ -41,7 +41,7 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
 
         par = self.par
 
-        par.Nfix = 4 # number of fixed discrete states (preference and abilities types)
+        par.Nfix = 1 # number of fixed discrete states (preference and abilities types)
         par.Nz = 7 # number of stochastic discrete states
 
         # a. preferences
@@ -50,7 +50,7 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         par.varphi = 1.0 # dis-utility of labor
         par.nu = 1.0 # inverse Frisch elasticity of labor supply
         par.omega = 2.0
-        par.S_ = 10.0**(-8)
+        par.S_ = 10e-8
 
         # b. income parameters
         par.rho_z = 0.96 # AR(1) parameter
@@ -91,3 +91,20 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
 
     prepare_hh_ss = steady_state.prepare_hh_ss
     find_ss = steady_state.find_ss
+
+    def v_ss(self):
+        """ social welfare in steady state """
+
+        par = self.par
+        ss = self.ss
+        
+        return np.sum([par.beta**t*ss.U_hh for t in range(par.T)])
+
+
+    def v_path(self):
+        """ social welfare in transition path """
+
+        par = self.par
+        path = self.path
+
+        return np.sum([par.beta**t*path.U_hh[t] for t in range(par.T)])

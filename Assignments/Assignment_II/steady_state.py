@@ -65,9 +65,10 @@ def obj_ss(x,model,do_print=False):
     
     # c. government
     ss.LG = ss.G/par.Gamma_G
-    ss.tau = (ss.G+ss.w*ss.LG)/ss.w*(ss.LG+ss.LY)
+    ss.tau = (ss.G+ss.w*ss.LG+ss.chi)/(ss.w*(ss.LG+ss.LY))
     ss.S = np.minimum(ss.G,par.Gamma_G*ss.LG)
     ss.B = 0.0
+    # ss.B = (ss.G+ss.w*ss.LG+ss.chi)-(ss.tau*ss.w*ss.L)
 
     # c. government budget constraint
     # ss.budget = ss.tau*ss.w*ss.L_hh - ss.G - ss.LG*ss.w - ss.chi
@@ -84,10 +85,10 @@ def obj_ss(x,model,do_print=False):
     ss.Y = par.Gamma_Y*ss.K**(par.alpha)*ss.LY**(1.0-par.alpha)
     ss.I = par.delta*ss.K
     ss.A = ss.K
-    ss.C_hh = ss.Y - ss.I - ss.G
     ss.clearing_A = ss.A - ss.A_hh
     ss.clearing_L = ss.L_hh - ss.LY - ss.LG
     ss.clearing_Y = ss.Y - ss.C_hh - ss.I - ss.G
+    # ss.clearing_S = (ss.G+ss.w*ss.LG+ss.chi)-(ss.tau*ss.w*ss.L_hh)
     
     return np.array([ss.clearing_A, ss.clearing_L])
 
