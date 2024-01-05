@@ -14,7 +14,7 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,tau,S
 
             # i. prepare
             z = par.z_grid[i_z]
-            fac = ((1-tau)*wt*z/par.varphi)**(1/par.nu)
+            fac = (wt*z/par.varphi)**(1/par.nu)
 
             # ii. use focs
             c_endo = (par.beta*vbeg_a_plus[i_fix,i_z,:])**(-1/par.sigma)
@@ -23,7 +23,7 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,tau,S
 
             # iii. re-interpolate
             m_endo = c_endo + par.a_grid - wt*l_endo
-            m_exo = (1+r)*par.a_grid+chi
+            m_exo = (1+r)*par.a_grid + chi
 
             interp_1d_vec(m_endo,c_endo,m_exo,c[i_fix,i_z,:])
             interp_1d_vec(m_endo,ell_endo,m_exo,ell[i_fix,i_z,:])
@@ -46,7 +46,7 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,tau,S
                     it = 0
                     while True:
 
-                        ci = (1+r)*par.a_grid[i_a] + wt*elli*z
+                        ci = (1+r)*par.a_grid[i_a] + wt*elli*z + chi
 
                         error = elli - fac*ci**(-par.sigma/par.nu)
                         if np.abs(error) < par.tol_ell:
@@ -67,8 +67,8 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,tau,S
 
                     break
 
-        inc[i_fix] = wt*l[i_fix] + r*par.a_grid
-        u[i_fix,:,:] = (c[i_fix]**(1-par.sigma))/(1-par.sigma) + ((S+par.S_)**(1-par.omega))/(1-par.omega) - par.varphi*(ell[i_fix]**(1+par.nu))/(1+par.nu)
+        inc[i_fix] = wt*l[i_fix] + r*par.a_grid + chi
+        u[i_fix,:,:] = c[i_fix]**(1-par.sigma)/(1-par.sigma) + (S+par.S_)**(1-par.omega)/(1-par.omega) - par.varphi*ell[i_fix]**(1+par.nu)/(1+par.nu)
         # du[i_fix,:,:] = par.beta * u[i_fix,:,:]
         # b. expectation step
         v_a = c[i_fix]**(-par.sigma)

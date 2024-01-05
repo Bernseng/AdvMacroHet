@@ -41,7 +41,7 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
 
         par = self.par
 
-        par.Nfix = 1 # number of fixed discrete states (preference and abilities types)
+        par.Nfix = 4 # number of fixed discrete states (preference and abilities types)
         par.Nz = 7 # number of stochastic discrete states
 
         # a. preferences
@@ -50,7 +50,6 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         par.varphi = 1.0 # dis-utility of labor
         par.nu = 1.0 # inverse Frisch elasticity of labor supply
         par.omega = 2.0
-        par.S_ = 10e-8
 
         # b. income parameters
         par.rho_z = 0.96 # AR(1) parameter
@@ -58,7 +57,6 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
 
         # c. production and investment
         par.Gamma_Y = 1.0 # technology level
-        par.Gamma_G = 1.0 
         par.alpha = 0.30 # cobb-douglas coefficient
         par.delta = 0.10 # depreciation rate
 
@@ -67,19 +65,21 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         par.Na = 100 # number of grid points
 
         # e. government
+        par.Gamma_G = 1.0 # goverment total factor productivity
         par.tau_ss = 0.015 # tax rate on wage income
+        par.S_ = 10e-7
         par.chi_ss = 0.0
         par.LG_ss = 0.0
         par.G_ss = 0.0
         
         # e. misc.
-        par.max_iter_ell = 500 # maximum number of iterations when solving for ell 
+        par.max_iter_ell = 200 # maximum number of iterations when solving for ell 
         par.max_iter_solve = 50_000 # maximum number of iterations when solving household problem
         par.max_iter_simulate = 50_000 # maximum number of iterations when simulating household problem
         
-        par.tol_ell = 1e-12 # tolerance when solving for ell 
-        par.tol_solve = 1e-12 # tolerance when solving household problem
-        par.tol_simulate = 1e-12 # tolerance when simulating household problem
+        par.tol_ell = 1e-10 # tolerance when solving for ell 
+        par.tol_solve = 1e-10 # tolerance when solving household problem
+        par.tol_simulate = 1e-10 # tolerance when simulating household problem
         par.tol_broyden = 1e-10 # tolerance when solving eq. system
 
     def allocate(self):
@@ -99,7 +99,6 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         ss = self.ss
         
         return np.sum([par.beta**t*ss.U_hh for t in range(par.T)])
-
 
     def v_path(self):
         """ social welfare in transition path """

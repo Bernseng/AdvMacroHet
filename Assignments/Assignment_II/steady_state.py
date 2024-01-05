@@ -50,14 +50,15 @@ def prepare_hh_ss(model):
 
 def obj_ss(x,model,do_print=False):
 
-    KL, LY = x[0], x[1]
+    KL = x[0]
+    # LY = x[1]
 
     par = model.par
     ss = model.ss
 
     # a. firms
-    ss.LY = LY
-    ss.rK = par.alpha*par.Gamma_Y*(KL)**(par.alpha-1.0)
+    # ss.LY = LY
+    ss.rK = par.alpha*par.Gamma_Y*(KL)**(par.alpha-1)
     ss.w = (1.0-par.alpha)*par.Gamma_Y*(KL)**par.alpha
 
     # b. arbitrage
@@ -65,8 +66,9 @@ def obj_ss(x,model,do_print=False):
     
     # c. government
     ss.LG = ss.G/par.Gamma_G
-    ss.tau = (ss.G+ss.w*ss.LG+ss.chi)/(ss.w*(ss.LG+ss.LY))
-    ss.S = np.minimum(ss.G,par.Gamma_G*ss.LG)
+    ss.tau = (ss.G+ss.w*ss.LG+ss.chi)/(ss.w*ss.L_hh)
+    ss.S = ss.G
+    # ss.S = np.minimum(ss.G,par.Gamma_G*ss.LG)
     ss.B = 0.0
     # ss.B = (ss.G+ss.w*ss.LG+ss.chi)-(ss.tau*ss.w*ss.L)
 
@@ -80,17 +82,18 @@ def obj_ss(x,model,do_print=False):
     model.simulate_hh_ss(do_print=do_print)
 
     # e. market clearing
-    ss.L = ss.LY+ss.LG
+    ss.LY = ss.L_hh - ss.LG
     ss.K = KL*ss.LY
     ss.Y = par.Gamma_Y*ss.K**(par.alpha)*ss.LY**(1.0-par.alpha)
     ss.I = par.delta*ss.K
-    ss.A = ss.K
+    ss.A = ss.K + ss.B
     ss.clearing_A = ss.A - ss.A_hh
-    ss.clearing_L = ss.L_hh - ss.LY - ss.LG
+    ss.clearing_L = ss.LY + ss.LG - ss.L_hh
     ss.clearing_Y = ss.Y - ss.C_hh - ss.I - ss.G
     # ss.clearing_S = (ss.G+ss.w*ss.LG+ss.chi)-(ss.tau*ss.w*ss.L_hh)
     
-    return np.array([ss.clearing_A, ss.clearing_L])
+    return ss.clearing_A
+# np.array([ss.clearing_A, ss.clearing_L])
 
 
 def find_ss(model,do_print=False):
@@ -104,14 +107,14 @@ def find_ss(model,do_print=False):
     KL_min = ((1/par.beta+par.delta-1)/(par.alpha*par.Gamma_Y))**(1/(par.alpha-1)) + 1e-2
     KL_max = (par.delta/(par.alpha*par.Gamma_Y))**(1/(par.alpha-1))-1e-2
     KL_mid = (KL_min+KL_max)/2 # middle point between max values as initial capital labor ratio
-    LY_guess = ss.L_hh
+    # LY_guess = ss.L_hh
 
     # a. solve for K and L
-    initial_guess = np.array([KL_mid, LY_guess])
+    initial_guess = np.array([KL_mid])
 
     if do_print: 
         print(f'starting at KL={KL_mid:.4f}')        
-        print(f'starting at LY={LY_guess:.4f}')
+        # print(f'starting at LY={LY_guess:.4f}')
 
 
     res = optimize.root(obj_ss, initial_guess, args=(model,))
@@ -135,7 +138,7 @@ def find_ss(model,do_print=False):
         print(f'{ss.LG = :6.3f}')
         print(f'{ss.LY = :6.3f}')
         print(f'{ss.tau = :6.3f}')
-        # print(f'{ss.chi = :6.3f}')
+        print(f'{ss.chi = :6.3f}')
         print(f'{ss.clearing_A = :.2e}')
         print(f'{ss.clearing_L = :.2e}')
         print(f'{ss.clearing_Y = :.2e}')
